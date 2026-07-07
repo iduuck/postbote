@@ -213,6 +213,42 @@ describe("CRLF injection protection", () => {
       }),
     ).toThrow(PostboteError);
   });
+
+  it("rejects from email with embedded CRLF (object form)", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        from: { email: "a@b.c\r\nBcc: evil@x.com" },
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects to email with embedded CRLF (object form)", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        to: [{ email: "a@b.c\nCc: evil@x.com" }],
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects from string with CRLF before @", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        from: "a\r@b.c",
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects angle-bracket address with CRLF in email part", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        from: "Name <a@b.c\n>",
+      }),
+    ).toThrow(PostboteError);
+  });
 });
 
 describe("encodeAttachment", () => {

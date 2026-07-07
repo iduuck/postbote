@@ -57,6 +57,7 @@ function normalizeAddressField(
 }
 
 function validateAddressCRLF(addr: Address, label: string): void {
+  checkCRLF(addr.email, `${label} email`);
   if (addr.name) checkCRLF(addr.name, `${label} name`);
 }
 
