@@ -1,11 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { PostboteError } from "./errors.js";
+import type { SendContext } from "./pipeline.js";
 import { createPostbote } from "./postbote.js";
-import type { Adapter, EmailMessage, SendResult } from "./types.js";
+import type {
+  Adapter,
+  EmailMessage,
+  EmailMessageInput,
+  SendResult,
+} from "./types.js";
 
 function fakeAdapter(name = "test"): Adapter {
   const send = vi.fn(async (msg: EmailMessage): Promise<SendResult> => {
-    return { messageId: `${name}-${msg.to[0]!.email}`, provider: name };
+    const recipient = msg.to[0];
+    return { messageId: `${name}-${recipient?.email}`, provider: name };
   });
   return { name, send };
 }
@@ -40,8 +47,8 @@ describe("createPostbote", () => {
       subject: "Test",
       text: "Body",
     });
-    const received = (adapter.send as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as EmailMessage;
+    const call = (adapter.send as ReturnType<typeof vi.fn>).mock.calls[0];
+    const received = call?.[0] as EmailMessage;
     expect(received.from).toEqual({ email: "s@t.com", name: "Sender" });
     expect(received.to).toEqual([{ email: "r@t.com" }]);
   });
@@ -49,7 +56,9 @@ describe("createPostbote", () => {
   it("rejects invalid input before calling adapter", async () => {
     const adapter = fakeAdapter();
     const pb = createPostbote({ adapter });
-    await expect(pb.send({} as any)).rejects.toThrow(PostboteError);
+    await expect(pb.send({} as EmailMessageInput)).rejects.toThrow(
+      PostboteError,
+    );
     expect(adapter.send).not.toHaveBeenCalled();
   });
 
@@ -74,11 +83,28 @@ describe("createPostbote", () => {
 
   it("executes plugins from config", async () => {
     const adapter = fakeAdapter();
-    const plugin = vi.fn(async (ctx: any, next: any) => {
-      return next();
-    });
+    const plugin = vi.fn(
+      async (_ctx: SendContext, next: () => Promise<SendResult>) => {
+        return next();
+      },
+    );
     const pb = createPostbote({ adapter, plugins: [plugin] });
     await pb.send({ from: "f@t.com", to: "t@t.com", subject: "S", text: "B" });
     expect(plugin).toHaveBeenCalledOnce();
+  });
+
+  it("passes signal from SendOptions to adapter", async () => {
+    const adapter = fakeAdapter();
+    const pb = createPostbote({ adapter });
+    const ac = new AbortController();
+    ac.abort();
+    await expect(
+      pb.send(
+        { from: "f@t.com", to: "t@t.com", subject: "S", text: "B" },
+        { signal: ac.signal },
+      ),
+    ).rejects.toThrow(
+      expect.objectContaining({ code: "ABORTED", provider: "test" }),
+    );
   });
 });

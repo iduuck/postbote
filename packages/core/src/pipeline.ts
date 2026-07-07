@@ -1,4 +1,4 @@
-import { type PostboteError, toPostboteError } from "./errors.js";
+import { PostboteError, toPostboteError } from "./errors.js";
 import type { Adapter, EmailMessage, SendResult } from "./types.js";
 
 export interface SendAttempt {
@@ -10,6 +10,7 @@ export interface SendContext {
   message: EmailMessage;
   adapter: Adapter;
   attempts: SendAttempt[];
+  signal?: AbortSignal;
 }
 
 export type Next = () => Promise<SendResult>;
@@ -18,6 +19,15 @@ export type Middleware = (ctx: SendContext, next: Next) => Promise<SendResult>;
 
 export function compose(middlewares: Middleware[]) {
   const terminal = async (ctx: SendContext): Promise<SendResult> => {
+    if (ctx.signal?.aborted) {
+      const err = new PostboteError("Send aborted", {
+        code: "ABORTED",
+        provider: ctx.adapter.name,
+      });
+      ctx.attempts.push({ adapter: ctx.adapter.name, error: err });
+      throw err;
+    }
+
     try {
       const result = await ctx.adapter.send(ctx.message);
       ctx.attempts.push({ adapter: ctx.adapter.name });

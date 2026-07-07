@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { PostboteError } from "./errors.js";
-import type { SendAttempt } from "./pipeline.js";
+import type { SendAttempt, SendContext } from "./pipeline.js";
 import { compose } from "./pipeline.js";
 import type { Adapter, EmailMessage, SendResult } from "./types.js";
 
@@ -35,13 +35,13 @@ describe("compose", () => {
 
   it("executes middleware in correct order (onion model)", async () => {
     const order: string[] = [];
-    const mw1 = async (ctx: any, next: any) => {
+    const mw1 = async (_ctx: SendContext, next: () => Promise<SendResult>) => {
       order.push("a-before");
       const res = await next();
       order.push("a-after");
       return res;
     };
-    const mw2 = async (ctx: any, next: any) => {
+    const mw2 = async (_ctx: SendContext, next: () => Promise<SendResult>) => {
       order.push("b-before");
       const res = await next();
       order.push("b-after");
@@ -54,7 +54,7 @@ describe("compose", () => {
   });
 
   it("allows middleware to replace ctx.message", async () => {
-    const mw = async (ctx: any, next: any) => {
+    const mw = async (ctx: SendContext, next: () => Promise<SendResult>) => {
       ctx.message = { ...ctx.message, subject: "REPLACED" };
       return next();
     };
@@ -78,7 +78,10 @@ describe("compose", () => {
     const fallback = fakeAdapter("fallback");
     const order: string[] = [];
 
-    const failoverMw = async (ctx: any, next: any) => {
+    const failoverMw = async (
+      ctx: SendContext,
+      next: () => Promise<SendResult>,
+    ) => {
       ctx.adapter = primary;
       try {
         return await next();
@@ -104,7 +107,7 @@ describe("compose", () => {
     const adapter = fakeAdapter("recorder");
     const pipeline = compose([]);
     const attempts: SendAttempt[] = [];
-    const ctx = { message: dummyMessage, adapter, attempts };
+    const ctx: SendContext = { message: dummyMessage, adapter, attempts };
     await pipeline(ctx);
     expect(ctx.attempts).toHaveLength(1);
     expect(ctx.attempts[0]).toEqual({ adapter: "recorder" });
@@ -114,18 +117,21 @@ describe("compose", () => {
     const adapter = fakeAdapter("failer", true);
     const pipeline = compose([]);
     const attempts: SendAttempt[] = [];
-    const ctx = { message: dummyMessage, adapter, attempts };
+    const ctx: SendContext = { message: dummyMessage, adapter, attempts };
     await expect(pipeline(ctx)).rejects.toThrow(PostboteError);
     expect(ctx.attempts).toHaveLength(1);
-    expect(ctx.attempts[0]!.adapter).toBe("failer");
-    expect(ctx.attempts[0]!.error).toBeDefined();
-    expect(ctx.attempts[0]!.error!.code).toBe("UNKNOWN");
+    expect(ctx.attempts[0]?.adapter).toBe("failer");
+    expect(ctx.attempts[0]?.error).toBeDefined();
+    expect(ctx.attempts[0]?.error?.code).toBe("UNKNOWN");
   });
 
   it("records multiple attempts with correct order on retry", async () => {
     const primary = fakeAdapter("p1", true);
     const fallback = fakeAdapter("p2");
-    const failoverMw = async (ctx: any, next: any) => {
+    const failoverMw = async (
+      ctx: SendContext,
+      next: () => Promise<SendResult>,
+    ) => {
       ctx.adapter = primary;
       try {
         return await next();
@@ -136,13 +142,17 @@ describe("compose", () => {
     };
     const pipeline = compose([failoverMw]);
     const attempts: SendAttempt[] = [];
-    const ctx = { message: dummyMessage, adapter: primary, attempts };
+    const ctx: SendContext = {
+      message: dummyMessage,
+      adapter: primary,
+      attempts,
+    };
     await pipeline(ctx);
     expect(ctx.attempts).toHaveLength(2);
-    expect(ctx.attempts[0]!.adapter).toBe("p1");
-    expect(ctx.attempts[0]!.error).toBeDefined();
-    expect(ctx.attempts[1]!.adapter).toBe("p2");
-    expect(ctx.attempts[1]!.error).toBeUndefined();
+    expect(ctx.attempts[0]?.adapter).toBe("p1");
+    expect(ctx.attempts[0]?.error).toBeDefined();
+    expect(ctx.attempts[1]?.adapter).toBe("p2");
+    expect(ctx.attempts[1]?.error).toBeUndefined();
   });
 
   it("normalizes raw adapter error to PostboteError with UNKNOWN", async () => {
@@ -154,7 +164,7 @@ describe("compose", () => {
   });
 
   it("allows middleware to short-circuit without calling next()", async () => {
-    const mw = async (_ctx: any, _next: any) => {
+    const mw = async (_ctx: SendContext, _next: () => Promise<SendResult>) => {
       return { messageId: "short-circuit", provider: "mw" };
     };
     const adapter = fakeAdapter("never-called");
@@ -165,5 +175,22 @@ describe("compose", () => {
       attempts: [],
     });
     expect(result.messageId).toBe("short-circuit");
+  });
+
+  it("throws ABORTED when signal is already aborted", async () => {
+    const adapter = fakeAdapter("abortable");
+    const pipeline = compose([]);
+    const ac = new AbortController();
+    ac.abort();
+    await expect(
+      pipeline({
+        message: dummyMessage,
+        adapter,
+        attempts: [],
+        signal: ac.signal,
+      }),
+    ).rejects.toThrow(
+      expect.objectContaining({ code: "ABORTED", provider: "abortable" }),
+    );
   });
 });

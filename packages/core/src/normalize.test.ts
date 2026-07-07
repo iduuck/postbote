@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { isPostboteError, PostboteError } from "./errors.js";
-import { normalizeMessage, parseAddress } from "./normalize.js";
+import {
+  encodeAttachment,
+  normalizeMessage,
+  parseAddress,
+} from "./normalize.js";
 
 describe("parseAddress", () => {
   it("parses plain email string", () => {
@@ -34,6 +38,23 @@ describe("parseAddress", () => {
         expect(e.provider).toBe("postbote");
       }
     }
+  });
+
+  it("throws INVALID_MESSAGE when angle bracket content has no @", () => {
+    expect(() => parseAddress("Nick <keine-email>")).toThrow(PostboteError);
+  });
+
+  it("allows @ in display name when email is valid", () => {
+    const result = parseAddress('"Nick @ Home" <n@t.com>');
+    expect(result.email).toBe("n@t.com");
+  });
+
+  it("throws INVALID_MESSAGE for Address object with empty email", () => {
+    expect(() => parseAddress({ email: "" })).toThrow(PostboteError);
+  });
+
+  it("throws INVALID_MESSAGE for Address object without @ in email", () => {
+    expect(() => parseAddress({ email: "no-at" })).toThrow(PostboteError);
   });
 });
 
@@ -74,7 +95,7 @@ describe("normalizeMessage", () => {
       replyTo: "reply@test.com",
     });
     expect(msg.cc).toHaveLength(1);
-    expect(msg.cc![0]).toEqual({ email: "cc@test.com" });
+    expect(msg.cc?.[0]).toEqual({ email: "cc@test.com" });
     expect(msg.bcc).toHaveLength(2);
     expect(msg.replyTo).toEqual({ email: "reply@test.com" });
   });
@@ -96,7 +117,7 @@ describe("normalizeMessage", () => {
   });
 
   it("throws INVALID_MESSAGE when from is missing", () => {
-    const { from, ...rest } = minimal;
+    const { from: _, ...rest } = minimal;
     expect(() => normalizeMessage(rest as typeof minimal)).toThrow(
       PostboteError,
     );
@@ -109,21 +130,21 @@ describe("normalizeMessage", () => {
   });
 
   it("throws INVALID_MESSAGE when subject is missing", () => {
-    const { subject, ...rest } = minimal;
+    const { subject: _, ...rest } = minimal;
     expect(() => normalizeMessage(rest as typeof minimal)).toThrow(
       PostboteError,
     );
   });
 
   it("throws INVALID_MESSAGE when neither html nor text is present", () => {
-    const { text, ...rest } = minimal;
+    const { text: _, ...rest } = minimal;
     expect(() => normalizeMessage(rest as typeof minimal)).toThrow(
       PostboteError,
     );
   });
 
   it("throws INVALID_MESSAGE with correct code for all validation errors", () => {
-    const { from, ...rest } = minimal;
+    const { from: _, ...rest } = minimal;
     try {
       normalizeMessage(rest as typeof minimal);
       expect.unreachable();
@@ -134,5 +155,82 @@ describe("normalizeMessage", () => {
         expect(e.retryable).toBe(false);
       }
     }
+  });
+});
+
+describe("CRLF injection protection", () => {
+  const minimal = {
+    from: "f@t.com",
+    to: "t@t.com",
+    subject: "S",
+    text: "B",
+  };
+
+  it("rejects subject with CR", () => {
+    expect(() =>
+      normalizeMessage({ ...minimal, subject: "bad\rsubject" }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects subject with LF", () => {
+    expect(() =>
+      normalizeMessage({ ...minimal, subject: "bad\nsubject" }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects from name with CRLF", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        from: { email: "f@t.com", name: "foo\r\nbar" },
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects to name with CRLF", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        to: [{ email: "t@t.com", name: "inject\n" }],
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects header key with CRLF", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        headers: { "X-Injected\r\n": "value" },
+      }),
+    ).toThrow(PostboteError);
+  });
+
+  it("rejects header value with CRLF", () => {
+    expect(() =>
+      normalizeMessage({
+        ...minimal,
+        headers: { "X-Custom": "safe\r\ninjected" },
+      }),
+    ).toThrow(PostboteError);
+  });
+});
+
+describe("encodeAttachment", () => {
+  it("encodes a simple Uint8Array to base64", () => {
+    const input = new Uint8Array([104, 101, 108, 108, 111]);
+    expect(encodeAttachment(input)).toBe("aGVsbG8=");
+  });
+
+  it("handles empty input", () => {
+    expect(encodeAttachment(new Uint8Array([]))).toBe("");
+  });
+
+  it("handles large content (>= 8192 bytes)", () => {
+    const input = new Uint8Array(16384);
+    for (let i = 0; i < input.length; i++) input[i] = i & 0xff;
+    const result = encodeAttachment(input);
+    expect(typeof result).toBe("string");
+    expect(result.length).toBeGreaterThan(0);
+    expect(btoa(String.fromCharCode(...input))).toBe(result);
   });
 });

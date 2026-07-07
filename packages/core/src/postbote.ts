@@ -1,7 +1,12 @@
 import { normalizeMessage } from "./normalize.js";
 import type { Middleware, SendContext } from "./pipeline.js";
 import { compose } from "./pipeline.js";
-import type { Adapter, EmailMessageInput, SendResult } from "./types.js";
+import type {
+  Adapter,
+  EmailMessageInput,
+  SendOptions,
+  SendResult,
+} from "./types.js";
 
 export interface PostboteConfig {
   adapter: Adapter;
@@ -9,7 +14,7 @@ export interface PostboteConfig {
 }
 
 export interface Postbote {
-  send(input: EmailMessageInput): Promise<SendResult>;
+  send(input: EmailMessageInput, options?: SendOptions): Promise<SendResult>;
   readonly adapter: Adapter;
 }
 
@@ -18,12 +23,16 @@ export function createPostbote(config: PostboteConfig): Postbote {
 
   return {
     adapter: config.adapter,
-    async send(input: EmailMessageInput): Promise<SendResult> {
+    async send(
+      input: EmailMessageInput,
+      options?: SendOptions,
+    ): Promise<SendResult> {
       const message = normalizeMessage(input);
       const ctx: SendContext = {
         message,
         adapter: config.adapter,
         attempts: [],
+        signal: options?.signal,
       };
       return pipeline(ctx);
     },

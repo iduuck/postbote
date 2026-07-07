@@ -35,6 +35,17 @@ describe("PostboteError", () => {
 
     const unknown = new PostboteError("x", { code: "UNKNOWN", provider: "p" });
     expect(unknown.retryable).toBe(false);
+
+    const aborted = new PostboteError("x", { code: "ABORTED", provider: "p" });
+    expect(aborted.retryable).toBe(false);
+  });
+
+  it("ABORTED code is not retryable", () => {
+    const err = new PostboteError("aborted", {
+      code: "ABORTED",
+      provider: "p",
+    });
+    expect(err.retryable).toBe(false);
   });
 
   it("explicit retryable overrides default", () => {
@@ -60,6 +71,16 @@ describe("PostboteError", () => {
     const cause = new Error("root");
     const err = new PostboteError("x", {
       code: "UNKNOWN",
+      provider: "p",
+      cause,
+    });
+    expect(err.cause).toBe(cause);
+  });
+
+  it("passes cause to native Error.cause", () => {
+    const cause = new Error("root");
+    const err = new PostboteError("x", {
+      code: "TIMEOUT",
       provider: "p",
       cause,
     });

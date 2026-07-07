@@ -10,6 +10,13 @@
     }
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/.turbo", "!**/coverage"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/.turbo",
+      "!**/coverage",
+      "!**/.claude",
+      "!**/.changeset"
+    ]
   }
 }

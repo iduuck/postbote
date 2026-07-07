@@ -1,6 +1,7 @@
 const BRAND = Symbol.for("postbote.error");
 
 export type ErrorCode =
+  | "ABORTED"
   | "AUTH"
   | "INVALID_MESSAGE"
   | "RECIPIENT_REJECTED"
@@ -10,6 +11,7 @@ export type ErrorCode =
   | "UNKNOWN";
 
 const DEFAULT_RETRYABLE: Record<ErrorCode, boolean> = {
+  ABORTED: false,
   AUTH: false,
   INVALID_MESSAGE: false,
   RECIPIENT_REJECTED: false,
@@ -35,7 +37,7 @@ export class PostboteError extends Error {
       cause?: unknown;
     },
   ) {
-    super(message);
+    super(message, { cause: opts.cause });
     this.name = "PostboteError";
     this.code = opts.code;
     this.provider = opts.provider;

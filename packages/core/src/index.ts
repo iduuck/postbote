@@ -18,5 +18,6 @@ export type {
   Attachment,
   EmailMessage,
   EmailMessageInput,
+  SendOptions,
   SendResult,
 } from "./types.js";

@@ -37,6 +37,10 @@ export interface EmailMessageInput {
   tags?: Record<string, string>;
 }
 
+export interface SendOptions {
+  signal?: AbortSignal;
+}
+
 export interface SendResult {
   messageId: string;
   provider: string;
@@ -45,5 +49,5 @@ export interface SendResult {
 
 export interface Adapter {
   readonly name: string;
-  send(message: EmailMessage): Promise<SendResult>;
+  send(message: EmailMessage, options?: SendOptions): Promise<SendResult>;
 }
