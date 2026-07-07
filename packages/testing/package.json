@@ -1,0 +1,33 @@
+{
+  "name": "@postbote/testing",
+  "version": "0.0.0",
+  "description": "Consumer-Test-Kit: Test-Adapter, Inbox-Assertions, Vitest/Jest-Matcher",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "@postbote/core": "workspace:^"
+  }
+}
