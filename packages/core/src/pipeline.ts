@@ -29,7 +29,7 @@ export function compose(middlewares: Middleware[]) {
     }
 
     try {
-      const result = await ctx.adapter.send(ctx.message);
+      const result = await ctx.adapter.send(ctx.message, { signal: ctx.signal });
       ctx.attempts.push({ adapter: ctx.adapter.name });
       return result;
     } catch (err) {

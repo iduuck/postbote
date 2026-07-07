@@ -193,4 +193,51 @@ describe("compose", () => {
       expect.objectContaining({ code: "ABORTED", provider: "abortable" }),
     );
   });
+
+  it("forwards ctx.signal as options.signal to adapter.send", async () => {
+    let receivedOptions: unknown;
+    const adapter: Adapter = {
+      name: "signal-spy",
+      async send(
+        _msg: EmailMessage,
+        options?: { signal?: AbortSignal },
+      ): Promise<SendResult> {
+        receivedOptions = options;
+        return { messageId: "spied", provider: "signal-spy" };
+      },
+    };
+    const pipeline = compose([]);
+    const ac = new AbortController();
+    await pipeline({
+      message: dummyMessage,
+      adapter,
+      attempts: [],
+      signal: ac.signal,
+    });
+    expect(receivedOptions).toBeDefined();
+    expect((receivedOptions as { signal?: AbortSignal }).signal).toBe(
+      ac.signal,
+    );
+  });
+
+  it("passes undefined options when no signal in context", async () => {
+    let receivedOptions: unknown;
+    const adapter: Adapter = {
+      name: "no-signal-spy",
+      async send(
+        _msg: EmailMessage,
+        options?: { signal?: AbortSignal },
+      ): Promise<SendResult> {
+        receivedOptions = options;
+        return { messageId: "spied", provider: "no-signal-spy" };
+      },
+    };
+    const pipeline = compose([]);
+    await pipeline({
+      message: dummyMessage,
+      adapter,
+      attempts: [],
+    });
+    expect(receivedOptions).toEqual({ signal: undefined });
+  });
 });

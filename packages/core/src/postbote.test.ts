@@ -107,4 +107,22 @@ describe("createPostbote", () => {
       expect.objectContaining({ code: "ABORTED", provider: "test" }),
     );
   });
+
+  it("forwards signal as second argument to adapter.send", async () => {
+    const send = vi.fn(
+      async (_msg: EmailMessage, _opts?: unknown): Promise<SendResult> => ({
+        messageId: "spy",
+        provider: "test",
+      }),
+    );
+    const adapter: Adapter = { name: "spy", send };
+    const pb = createPostbote({ adapter });
+    const ac = new AbortController();
+    await pb.send(
+      { from: "f@t.com", to: "t@t.com", subject: "S", text: "B" },
+      { signal: ac.signal },
+    );
+    const opts = send.mock.calls[0]?.[1] as { signal?: AbortSignal } | undefined;
+    expect(opts?.signal).toBe(ac.signal);
+  });
 });
