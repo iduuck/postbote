@@ -1,5 +1,9 @@
 import { expect } from "vitest";
-import { toHaveSentEmail, toHaveSentEmailMatching, toHaveSentEmailTo } from "./matchers.js";
+import {
+  toHaveSentEmail,
+  toHaveSentEmailMatching,
+  toHaveSentEmailTo,
+} from "./matchers.js";
 
 expect.extend({
   toHaveSentEmail,
