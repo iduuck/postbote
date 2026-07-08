@@ -25,11 +25,18 @@ export interface SendGridOptions {
 }
 
 export function sendgrid(options: SendGridOptions): Adapter {
-  if (!options.client) {
-    sgMail.setApiKey(options.apiKey);
+  let client: SendGridClient;
+
+  if (options.client) {
+    client = options.client;
+  } else {
+    const MailService = sgMail.constructor as new () => SendGridClient & {
+      setApiKey(key: string): void;
+    };
+    const mailService = new MailService();
+    mailService.setApiKey(options.apiKey);
+    client = mailService;
   }
-  const client: SendGridClient =
-    options.client ?? (sgMail as unknown as SendGridClient);
 
   return {
     name: "sendgrid",
