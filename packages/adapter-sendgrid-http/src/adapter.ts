@@ -82,7 +82,10 @@ export function sendgridHttp(options: SendGridHttpOptions): Adapter {
       return {
         messageId,
         provider: "sendgrid-http",
-        raw: { status: response.status },
+        raw: {
+          status: response.status,
+          headers: Object.fromEntries(response.headers.entries()),
+        },
       };
     },
   };

@@ -28,7 +28,13 @@ describe("sendgridHttp()", () => {
 
     expect(result.messageId).toBe("custom-fetch-id");
     expect(result.provider).toBe("sendgrid-http");
-    expect(result.raw).toEqual({ status: 202 });
+    expect(result.raw).toEqual({
+      status: 202,
+      headers: {
+        "content-type": "application/json",
+        "x-message-id": "custom-fetch-id",
+      },
+    });
     expect(mockFetch).toHaveBeenCalledOnce();
 
     const callUrl = mockFetch.mock.calls[0]?.[0];
