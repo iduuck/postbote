@@ -16,7 +16,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |
 | `packages/adapter-sendgrid-http` | fetch-based SendGrid adapter, 0 SDK deps, edge-compatible |
 | `packages/plugin-failover` | stub (Phase 6) |
-| `packages/testing` | stub (Phase 5) |
+| `packages/testing` | Consumer test kit — `createTestAdapter`, `TestInbox`, error simulation, Vitest/Jest matchers (`./matchers` subpath) |
 | `examples/` | (empty — planned) |
 | `plans/` | Detailed plans & ADRs — **gitignored**, read locally! (especially before starting any phase) |
 

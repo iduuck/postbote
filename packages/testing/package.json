@@ -4,7 +4,9 @@
   "description": "Consumer-Test-Kit: Test-Adapter, Inbox-Assertions, Vitest/Jest-Matcher",
   "license": "MIT",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/register.js"
+  ],
   "engines": {
     "node": ">=20.19"
   },
@@ -15,6 +17,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./matchers": {
+      "types": "./dist/register.d.ts",
+      "default": "./dist/register.js"
     },
     "./package.json": "./package.json"
   },
@@ -28,6 +34,11 @@
     "provenance": true
   },
   "peerDependencies": {
-    "@postbote/core": "workspace:^"
+    "@postbote/core": "workspace:^",
+    "vitest": "^3"
+  },
+  "devDependencies": {
+    "@postbote/core": "workspace:^",
+    "vitest": "^3"
   }
 }
