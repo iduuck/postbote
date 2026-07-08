@@ -55,3 +55,19 @@ const result = await postbote.send({
 ## Sicherheit
 
 `normalizeMessage` validiert alle benutzerdefinierten Eingaben gegen CRLF-Injection (`\r`, `\n` in Subject, Header-Namen/Werten und Absender-/Empfängernamen).
+
+## Adapters
+
+| Provider | Native SDK | HTTP (edge-ready) |
+|---|---|---|
+| Resend | [`@postbote/adapter-resend`](../adapter-resend) | [`@postbote/adapter-resend-http`](../adapter-resend-http) |
+| Postmark | [`@postbote/adapter-postmark`](../adapter-postmark) | [`@postbote/adapter-postmark-http`](../adapter-postmark-http) |
+| SendGrid | [`@postbote/adapter-sendgrid`](../adapter-sendgrid) | [`@postbote/adapter-sendgrid-http`](../adapter-sendgrid-http) |
+
+## Write your own adapter
+
+Use the [contract test suite](../adapter-contract/README.md) to ensure your adapter follows the same behavioural contract as all official adapters — every adapter must pass it.
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

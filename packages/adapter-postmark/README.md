@@ -66,3 +66,11 @@ See `@postbote/adapter-postmark-http` — payload structure is identical.
 ## Contract
 
 Passes the full `@postbote/adapter-contract` suite (no `skip` for `recipientRejected`).
+
+## HTTP variant
+
+For a fetch-based, zero-dependency version (edge-compatible), see [`@postbote/adapter-postmark-http`](../adapter-postmark-http).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

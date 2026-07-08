@@ -59,3 +59,11 @@ const adapter = resend({ client });
 ## Contract
 
 Passes the full `@postbote/adapter-contract` suite.
+
+## HTTP variant
+
+For a fetch-based, zero-dependency version (edge-compatible), see [`@postbote/adapter-resend-http`](../adapter-resend-http).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

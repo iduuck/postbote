@@ -146,3 +146,7 @@ Negation works with `.not` for all matchers.
 - Inbox entries are defensive copies (mutating input doesn't affect inbox)
 - Deterministic `messageId`: `test-1`, `test-2`, …
 - TestAdapter is a standard `Adapter` — works as failover fallback
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

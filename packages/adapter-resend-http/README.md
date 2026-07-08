@@ -49,3 +49,11 @@ const result = await postbote.send({
 ## Contract
 
 Passes the full `@postbote/adapter-contract` suite.
+
+## Native SDK variant
+
+For the version using the official Resend SDK, see [`@postbote/adapter-resend`](../adapter-resend).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

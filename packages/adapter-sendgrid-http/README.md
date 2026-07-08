@@ -64,3 +64,11 @@ const result = await postbote.send({
 ### Message ID
 
 SendGrid responds `202 Accepted` with an empty body. The message ID is read from the `X-Message-Id` response header.
+
+## Native SDK variant
+
+For the version using the official `@sendgrid/mail` SDK, see [`@postbote/adapter-sendgrid`](../adapter-sendgrid).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

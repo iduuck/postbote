@@ -64,3 +64,11 @@ const result = await postbote.send({
 ## Contract
 
 Passes the full `@postbote/adapter-contract` suite (no `skip` for `recipientRejected`).
+
+## Native SDK variant
+
+For the version using the official Postmark SDK, see [`@postbote/adapter-postmark`](../adapter-postmark).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

@@ -63,3 +63,7 @@ class FailoverExhaustedError extends PostboteError {
   // code: "PROVIDER_UNAVAILABLE", retryable: true, provider: "failover"
 }
 ```
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

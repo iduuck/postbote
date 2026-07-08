@@ -1,0 +1,32 @@
+[
+  {
+    "name": "@postbote/core",
+    "path": "packages/core/dist/index.js",
+    "limit": "5 kB"
+  },
+  {
+    "name": "@postbote/adapter-resend-http",
+    "path": "packages/adapter-resend-http/dist/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "@postbote/adapter-postmark-http",
+    "path": "packages/adapter-postmark-http/dist/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "@postbote/adapter-sendgrid-http",
+    "path": "packages/adapter-sendgrid-http/dist/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "@postbote/plugin-failover",
+    "path": "packages/plugin-failover/dist/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "@postbote/testing",
+    "path": "packages/testing/dist/index.js",
+    "limit": "5 kB"
+  }
+]

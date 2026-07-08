@@ -65,3 +65,11 @@ See `@postbote/adapter-sendgrid-http` — payload structure is similar (SDK hand
 ### Message ID
 
 Read from the `X-Message-Id` response header returned by the SDK.
+
+## HTTP variant
+
+For a fetch-based, zero-dependency version (edge-compatible), see [`@postbote/adapter-sendgrid-http`](../adapter-sendgrid-http).
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).

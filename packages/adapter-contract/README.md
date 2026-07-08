@@ -52,3 +52,7 @@ Adapters that cannot generate a specific failure at the API level should list it
 
 - **SendGrid**: no synchronous recipient rejection → `skip: ["recipientRejected"]`
 - **Native SDK adapters**: timeouts are hard to simulate via msw → `skip: ["timeout"]`
+
+## License
+
+MIT — see [LICENSE.md](LICENSE.md).
