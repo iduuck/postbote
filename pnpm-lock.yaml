@@ -39,6 +39,22 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
 
+  examples/failover:
+    dependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../../packages/plugin-failover
+    devDependencies:
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../../packages/testing
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
+
   packages/adapter-contract:
     devDependencies:
       '@postbote/core':

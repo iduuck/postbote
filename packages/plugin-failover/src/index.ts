@@ -55,7 +55,7 @@ function safeCall(
     try {
       fn(info);
     } catch {
-      console.warn("failover: onFailover hook threw an error");
+      // Observable-Hooks sind nicht-kritisch — Fehler werden still geschluckt
     }
   }
 }

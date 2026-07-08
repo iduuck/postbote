@@ -1,0 +1,16 @@
+{
+  "name": "@examples/failover",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^"
+  },
+  "devDependencies": {
+    "@postbote/testing": "workspace:^",
+    "vitest": "^3"
+  }
+}
