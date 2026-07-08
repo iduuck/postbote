@@ -1,4 +1,4 @@
-# Postbote — Agent Guide
+# Postbote
 
 Provider-agnostic email SDK (TypeScript, ESM-only, pnpm monorepo).
 One core (`@postbote/core`), provider adapters as separate packages, cross-cutting concerns as middleware plugins.
@@ -33,6 +33,8 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `pnpm --filter @postbote/core test:coverage` | Coverage (threshold: ≥95 %) |
 | `pnpm changeset` | Create a new changeset |
 | `pnpm version && pnpm release` | Changesets publish |
+
+**Mandatory scripts to run before committing:** `pnpm test`, `pnpm typecheck`, `pnpm lint` and changeset creation.
 
 ## Non-negotiable conventions
 
