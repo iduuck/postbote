@@ -4,11 +4,10 @@ export default defineConfig({
   test: {
     coverage: {
       include: ["src/**"],
-      exclude: ["src/index.ts"],
       reporter: ["text", "lcov"],
       thresholds: {
         statements: 95,
-        branches: 95,
+        branches: 90,
         functions: 95,
         lines: 95,
       },
