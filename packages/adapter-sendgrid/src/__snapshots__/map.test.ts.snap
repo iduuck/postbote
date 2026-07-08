@@ -1,0 +1,143 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toSendGridSdkPayload > maps full fixture 1`] = `
+{
+  "attachments": [
+    {
+      "content": "SGVsbG8gV29ybGQ=",
+      "disposition": "attachment",
+      "filename": "readme.txt",
+      "type": "text/plain",
+    },
+    {
+      "content": "iVBORw0KGgo=",
+      "disposition": "attachment",
+      "filename": "photo.png",
+      "type": "image/png",
+    },
+  ],
+  "bcc": [
+    {
+      "email": "bcc@example.com",
+    },
+  ],
+  "cc": [
+    {
+      "email": "cc@example.com",
+      "name": "CC Person",
+    },
+  ],
+  "customArgs": {
+    "campaign": "onboarding",
+    "environment": "test",
+  },
+  "from": {
+    "email": "max@example.com",
+    "name": "Max Muster",
+  },
+  "headers": {
+    "X-Custom-Header": "custom-value",
+    "X-Priority": "high",
+  },
+  "html": "<p>Grüße aus Köln!</p>",
+  "replyTo": {
+    "email": "noreply@example.com",
+  },
+  "subject": "Grüße aus Köln — wichtige Informationen",
+  "to": [
+    {
+      "email": "anna@example.com",
+      "name": "Anna Beispiel",
+    },
+  ],
+}
+`;
+
+exports[`toSendGridSdkPayload > maps htmlOnly fixture 1`] = `
+{
+  "from": {
+    "email": "sender@example.com",
+  },
+  "html": "<h1>Hello</h1><p>This is HTML content.</p>",
+  "subject": "HTML Only",
+  "to": [
+    {
+      "email": "recipient@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSendGridSdkPayload > maps manyRecipients fixture 1`] = `
+{
+  "bcc": [
+    {
+      "email": "bcc1@example.com",
+    },
+    {
+      "email": "bcc2@example.com",
+    },
+  ],
+  "cc": [
+    {
+      "email": "cc1@example.com",
+    },
+    {
+      "email": "cc2@example.com",
+    },
+  ],
+  "from": {
+    "email": "sender@example.com",
+  },
+  "subject": "Many Recipients",
+  "text": "This message has many recipients.",
+  "to": [
+    {
+      "email": "r1@example.com",
+    },
+    {
+      "email": "r2@example.com",
+    },
+    {
+      "email": "r3@example.com",
+    },
+    {
+      "email": "r4@example.com",
+      "name": "Fourth Recipient",
+    },
+    {
+      "email": "r5@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSendGridSdkPayload > maps minimal fixture 1`] = `
+{
+  "from": {
+    "email": "sender@example.com",
+  },
+  "subject": "Hello World",
+  "text": "This is a plain text body.",
+  "to": [
+    {
+      "email": "recipient@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSendGridSdkPayload > maps textOnly fixture 1`] = `
+{
+  "from": {
+    "email": "sender@example.com",
+  },
+  "subject": "Text Only",
+  "text": "This is only text.",
+  "to": [
+    {
+      "email": "recipient@example.com",
+    },
+  ],
+}
+`;

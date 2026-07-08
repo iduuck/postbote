@@ -1,1 +1,2 @@
-export const VERSION = "0.0.0";
+export type { ResendHttpOptions } from "./adapter.js";
+export { resendHttp } from "./adapter.js";

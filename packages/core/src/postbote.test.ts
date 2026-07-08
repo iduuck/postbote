@@ -122,7 +122,9 @@ describe("createPostbote", () => {
       { from: "f@t.com", to: "t@t.com", subject: "S", text: "B" },
       { signal: ac.signal },
     );
-    const opts = send.mock.calls[0]?.[1] as { signal?: AbortSignal } | undefined;
+    const opts = send.mock.calls[0]?.[1] as
+      | { signal?: AbortSignal }
+      | undefined;
     expect(opts?.signal).toBe(ac.signal);
   });
 });

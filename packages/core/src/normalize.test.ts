@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { isPostboteError, PostboteError } from "./errors.js";
 import {
   encodeAttachment,
+  formatAddress,
   normalizeMessage,
   parseAddress,
 } from "./normalize.js";
@@ -248,6 +249,39 @@ describe("CRLF injection protection", () => {
         from: "Name <a@b.c\n>",
       }),
     ).toThrow(PostboteError);
+  });
+});
+
+describe("formatAddress", () => {
+  it("returns email only when no name", () => {
+    expect(formatAddress({ email: "a@b.com" })).toBe("a@b.com");
+  });
+
+  it("formats with simple name (no quoting)", () => {
+    expect(formatAddress({ email: "a@b.com", name: "Max" })).toBe(
+      "Max <a@b.com>",
+    );
+  });
+
+  it("quotes name containing comma", () => {
+    expect(formatAddress({ email: "a@b.com", name: "Muster, Max" })).toBe(
+      '"Muster, Max" <a@b.com>',
+    );
+  });
+
+  it("quotes name containing special characters", () => {
+    expect(formatAddress({ email: "a@b.com", name: "Smith; John" })).toBe(
+      '"Smith; John" <a@b.com>',
+    );
+    expect(formatAddress({ email: "a@b.com", name: "IT Dept." })).toBe(
+      '"IT Dept." <a@b.com>',
+    );
+  });
+
+  it("escapes embedded quotes in name", () => {
+    expect(formatAddress({ email: "a@b.com", name: 'Max "The Man"' })).toBe(
+      '"Max \\"The Man\\"" <a@b.com>',
+    );
   });
 });
 

@@ -1,1 +1,2 @@
-export const VERSION = "0.0.0";
+export type { SendGridHttpOptions } from "./adapter.js";
+export { sendgridHttp } from "./adapter.js";

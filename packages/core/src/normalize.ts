@@ -33,13 +33,7 @@ export function parseAddress(input: string | Address): Address {
 
   const angleMatch = trimmed.match(ADDRESS_REGEX_ANGLE);
   if (angleMatch) {
-    const email = angleMatch[2];
-    if (!email) {
-      throw new PostboteError(`Invalid address: no email in "${trimmed}"`, {
-        code: "INVALID_MESSAGE",
-        provider: "postbote",
-      });
-    }
+    const email = angleMatch[2] as string;
     checkEmail(email, "address");
     return { email, name: angleMatch[1]?.trim() };
   }
@@ -137,4 +131,14 @@ export function encodeAttachment(content: Uint8Array): string {
     binary += String.fromCharCode(...chunk);
   }
   return btoa(binary);
+}
+
+const NEEDS_QUOTING = /[()<>[\]:;@\\,."]/;
+
+export function formatAddress(addr: Address): string {
+  if (!addr.name) return addr.email;
+  const name = NEEDS_QUOTING.test(addr.name)
+    ? `"${addr.name.replace(/"/g, '\\"')}"`
+    : addr.name;
+  return `${name} <${addr.email}>`;
 }

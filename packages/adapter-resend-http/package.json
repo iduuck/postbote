@@ -29,5 +29,11 @@
   },
   "peerDependencies": {
     "@postbote/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@postbote/adapter-contract": "workspace:^",
+    "@postbote/core": "workspace:^",
+    "msw": "^2",
+    "vitest": "^3"
   }
 }

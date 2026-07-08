@@ -1,0 +1,82 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toPostmarkPayload > maps full fixture 1`] = `
+{
+  "Attachments": [
+    {
+      "Content": "SGVsbG8gV29ybGQ=",
+      "ContentType": "text/plain",
+      "Name": "readme.txt",
+    },
+    {
+      "Content": "iVBORw0KGgo=",
+      "ContentType": "image/png",
+      "Name": "photo.png",
+    },
+  ],
+  "Bcc": "bcc@example.com",
+  "Cc": "CC Person <cc@example.com>",
+  "From": "Max Muster <max@example.com>",
+  "Headers": [
+    {
+      "Name": "X-Custom-Header",
+      "Value": "custom-value",
+    },
+    {
+      "Name": "X-Priority",
+      "Value": "high",
+    },
+  ],
+  "HtmlBody": "<p>Grüße aus Köln!</p>",
+  "MessageStream": "outbound",
+  "Metadata": {
+    "campaign": "onboarding",
+    "environment": "test",
+  },
+  "ReplyTo": "noreply@example.com",
+  "Subject": "Grüße aus Köln — wichtige Informationen",
+  "To": "Anna Beispiel <anna@example.com>",
+}
+`;
+
+exports[`toPostmarkPayload > maps htmlOnly fixture 1`] = `
+{
+  "From": "sender@example.com",
+  "HtmlBody": "<h1>Hello</h1><p>This is HTML content.</p>",
+  "MessageStream": "outbound",
+  "Subject": "HTML Only",
+  "To": "recipient@example.com",
+}
+`;
+
+exports[`toPostmarkPayload > maps manyRecipients fixture 1`] = `
+{
+  "Bcc": "bcc1@example.com, bcc2@example.com",
+  "Cc": "cc1@example.com, cc2@example.com",
+  "From": "sender@example.com",
+  "MessageStream": "outbound",
+  "Subject": "Many Recipients",
+  "TextBody": "This message has many recipients.",
+  "To": "r1@example.com, r2@example.com, r3@example.com, Fourth Recipient <r4@example.com>, r5@example.com",
+}
+`;
+
+exports[`toPostmarkPayload > maps minimal fixture 1`] = `
+{
+  "From": "sender@example.com",
+  "MessageStream": "outbound",
+  "Subject": "Hello World",
+  "TextBody": "This is a plain text body.",
+  "To": "recipient@example.com",
+}
+`;
+
+exports[`toPostmarkPayload > maps textOnly fixture 1`] = `
+{
+  "From": "sender@example.com",
+  "MessageStream": "outbound",
+  "Subject": "Text Only",
+  "TextBody": "This is only text.",
+  "To": "recipient@example.com",
+}
+`;

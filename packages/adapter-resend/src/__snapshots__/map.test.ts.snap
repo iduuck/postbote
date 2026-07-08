@@ -1,0 +1,99 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toResendSdkPayload > maps full fixture 1`] = `
+{
+  "attachments": [
+    {
+      "content": "SGVsbG8gV29ybGQ=",
+      "filename": "readme.txt",
+    },
+    {
+      "content": "iVBORw0KGgo=",
+      "filename": "photo.png",
+    },
+  ],
+  "bcc": [
+    "bcc@example.com",
+  ],
+  "cc": [
+    "CC Person <cc@example.com>",
+  ],
+  "from": "Max Muster <max@example.com>",
+  "headers": {
+    "X-Custom-Header": "custom-value",
+    "X-Priority": "high",
+  },
+  "html": "<p>Grüße aus Köln!</p>",
+  "replyTo": "noreply@example.com",
+  "subject": "Grüße aus Köln — wichtige Informationen",
+  "tags": [
+    {
+      "name": "campaign",
+      "value": "onboarding",
+    },
+    {
+      "name": "environment",
+      "value": "test",
+    },
+  ],
+  "to": [
+    "Anna Beispiel <anna@example.com>",
+  ],
+}
+`;
+
+exports[`toResendSdkPayload > maps htmlOnly fixture 1`] = `
+{
+  "from": "sender@example.com",
+  "html": "<h1>Hello</h1><p>This is HTML content.</p>",
+  "subject": "HTML Only",
+  "to": [
+    "recipient@example.com",
+  ],
+}
+`;
+
+exports[`toResendSdkPayload > maps manyRecipients fixture 1`] = `
+{
+  "bcc": [
+    "bcc1@example.com",
+    "bcc2@example.com",
+  ],
+  "cc": [
+    "cc1@example.com",
+    "cc2@example.com",
+  ],
+  "from": "sender@example.com",
+  "subject": "Many Recipients",
+  "text": "This message has many recipients.",
+  "to": [
+    "r1@example.com",
+    "r2@example.com",
+    "r3@example.com",
+    "Fourth Recipient <r4@example.com>",
+    "r5@example.com",
+  ],
+}
+`;
+
+exports[`toResendSdkPayload > maps minimal fixture 1`] = `
+{
+  "from": "sender@example.com",
+  "subject": "Hello World",
+  "text": "This is a plain text body.",
+  "to": [
+    "recipient@example.com",
+  ],
+}
+`;
+
+exports[`toResendSdkPayload > maps textOnly fixture 1`] = `
+{
+  "from": "sender@example.com",
+  "subject": "Text Only",
+  "text": "This is only text.",
+  "to": [
+    "recipient@example.com",
+  ],
+}
+`;

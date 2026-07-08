@@ -1,1 +1,2 @@
-export const VERSION = "0.0.0";
+export type { PostmarkOptions } from "./adapter.js";
+export { postmark } from "./adapter.js";

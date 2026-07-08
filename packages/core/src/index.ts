@@ -6,6 +6,7 @@ export {
 } from "./errors.js";
 export {
   encodeAttachment,
+  formatAddress,
   normalizeMessage,
   parseAddress,
 } from "./normalize.js";

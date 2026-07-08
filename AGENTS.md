@@ -11,12 +11,12 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-contract` | Contract test suite (`runAdapterContractTests`) — every adapter must pass it |
 | `packages/adapter-resend` | Native Resend SDK adapter (SDK injectable via `client?` option) |
 | `packages/adapter-resend-http` | fetch-based adapter, 0 SDK dependencies, edge-compatible |
-| `packages/adapter-postmark` | stub (Phase 4) |
-| `packages/adapter-postmark-http` | stub (Phase 4) |
-| `packages/adapter-sendgrid` | stub (Phase 4) |
-| `packages/adapter-sendgrid-http` | stub (Phase 4) |
-| `packages/plugin-failover` | stub |
-| `packages/testing` | stub |
+| `packages/adapter-postmark` | Postmark native SDK adapter (`client?` injectable) |
+| `packages/adapter-postmark-http` | fetch-based Postmark adapter, 0 SDK deps, edge-compatible |
+| `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |
+| `packages/adapter-sendgrid-http` | fetch-based SendGrid adapter, 0 SDK deps, edge-compatible |
+| `packages/plugin-failover` | stub (Phase 6) |
+| `packages/testing` | stub (Phase 5) |
 | `examples/` | (empty — planned) |
 | `plans/` | Detailed plans & ADRs — **gitignored**, read locally! (especially before starting any phase) |
 
