@@ -29,5 +29,10 @@
   },
   "peerDependencies": {
     "@postbote/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/testing": "workspace:^",
+    "vitest": "^3"
   }
 }

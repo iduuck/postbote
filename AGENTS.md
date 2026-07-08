@@ -15,7 +15,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-postmark-http` | fetch-based Postmark adapter, 0 SDK deps, edge-compatible |
 | `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |
 | `packages/adapter-sendgrid-http` | fetch-based SendGrid adapter, 0 SDK deps, edge-compatible |
-| `packages/plugin-failover` | stub (Phase 6) |
+| `packages/plugin-failover` | Middleware-plugin — automatisches Failover auf Fallback-Adapter bei Provider-Ausfällen (`failover()`, `FailoverExhaustedError`) |
 | `packages/testing` | Consumer test kit — `createTestAdapter`, `TestInbox`, error simulation, Vitest/Jest matchers (`./matchers` subpath) |
 | `examples/` | (empty — planned) |
 | `plans/` | Detailed plans & ADRs — **gitignored**, read locally! (especially before starting any phase) |
@@ -30,6 +30,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `pnpm typecheck` | Turbo — `tsc --noEmit` across all packages |
 | `pnpm lint` / `pnpm lint:fix` | Biome — **run before every commit** |
 | `pnpm --filter @postbote/core test` | Single-package test |
+| `pnpm --filter @postbote/plugin-failover test` | Single-package test |
 | `pnpm --filter @postbote/core test:coverage` | Coverage (threshold: ≥95 %) |
 | `pnpm changeset` | Create a new changeset |
 | `pnpm version && pnpm release` | Changesets publish |

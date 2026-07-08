@@ -152,7 +152,17 @@ importers:
 
   packages/core: {}
 
-  packages/plugin-failover: {}
+  packages/plugin-failover:
+    devDependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../testing
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
 
   packages/testing:
     devDependencies:
