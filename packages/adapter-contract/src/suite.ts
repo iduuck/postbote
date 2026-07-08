@@ -9,7 +9,8 @@ export type FailureKind =
   | "unavailable"
   | "timeout"
   | "invalidMessage"
-  | "recipientRejected";
+  | "recipientRejected"
+  | "networkError";
 
 export interface AdapterContractOptions {
   name: string;
@@ -20,6 +21,7 @@ export interface AdapterContractOptions {
     reset(): void;
   };
   skip?: FailureKind[];
+  secret?: string;
 }
 
 const expectedCode: Record<FailureKind, ErrorCode> = {
@@ -29,6 +31,7 @@ const expectedCode: Record<FailureKind, ErrorCode> = {
   timeout: "TIMEOUT",
   invalidMessage: "INVALID_MESSAGE",
   recipientRejected: "RECIPIENT_REJECTED",
+  networkError: "PROVIDER_UNAVAILABLE",
 };
 
 const expectedRetryable: Record<FailureKind, boolean> = {
@@ -38,6 +41,7 @@ const expectedRetryable: Record<FailureKind, boolean> = {
   timeout: true,
   invalidMessage: false,
   recipientRejected: false,
+  networkError: true,
 };
 
 export function runAdapterContractTests(opts: AdapterContractOptions): void {
@@ -73,6 +77,7 @@ export function runAdapterContractTests(opts: AdapterContractOptions): void {
         "timeout",
         "invalidMessage",
         "recipientRejected",
+        "networkError",
       ];
 
       for (const kind of kinds) {
@@ -141,7 +146,11 @@ export function runAdapterContractTests(opts: AdapterContractOptions): void {
           const serialized =
             JSON.stringify(err) +
             String((err as { cause?: unknown }).cause ?? "");
-          expect(serialized).not.toMatch(/sk_live|sk_test|re_|SG\.|pma_/);
+          if (opts.secret) {
+            expect(serialized).not.toContain(opts.secret);
+          } else {
+            expect(serialized).not.toMatch(/sk_live|sk_test|re_|SG\.|pma_/);
+          }
         }
       });
 
