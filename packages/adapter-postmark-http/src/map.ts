@@ -3,17 +3,22 @@ import { encodeAttachment, formatAddress, PostboteError } from "@postbote/core";
 
 const MAX_RECIPIENTS = 50;
 
-function formatAddressList(addrs: Address[], field: string): string {
-  if (addrs.length > MAX_RECIPIENTS) {
+function formatAddressList(addrs: Address[], _field: string): string {
+  return addrs.map(formatAddress).join(", ");
+}
+
+function validateRecipients(msg: EmailMessage): void {
+  const total =
+    (msg.to?.length ?? 0) + (msg.cc?.length ?? 0) + (msg.bcc?.length ?? 0);
+  if (total > MAX_RECIPIENTS) {
     throw new PostboteError(
-      `Too many recipients in "${field}": ${addrs.length} (max ${MAX_RECIPIENTS})`,
+      `Too many recipients: ${total} (max ${MAX_RECIPIENTS})`,
       {
         code: "INVALID_MESSAGE",
         provider: "postmark-http",
       },
     );
   }
-  return addrs.map(formatAddress).join(", ");
 }
 
 function mapHeaders(
@@ -58,6 +63,8 @@ export function toPostmarkPayload(
   msg: EmailMessage,
   messageStream: string,
 ): PostmarkPayload {
+  validateRecipients(msg);
+
   const payload: PostmarkPayload = {
     From: formatAddress(msg.from),
     To: formatAddressList(msg.to, "to"),
