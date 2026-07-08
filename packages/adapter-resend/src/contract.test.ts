@@ -9,12 +9,16 @@ interface MockState {
   status: number;
   body: Record<string, unknown>;
   delayMs: number;
+  networkError?: boolean;
 }
 
 let state: MockState = { status: 200, body: { id: "default-id" }, delayMs: 0 };
 
 const handlers = [
   http.post("https://api.resend.com/emails", async () => {
+    if (state.networkError) {
+      return HttpResponse.error();
+    }
     if (state.delayMs > 0) {
       await delay(state.delayMs);
     }
@@ -58,6 +62,13 @@ function getFailureResponse(kind: FailureKind): MockState {
         body: { name: "recipient_rejected", message: "Recipient rejected" },
         delayMs: 0,
       };
+    case "networkError":
+      return {
+        status: 0,
+        body: {},
+        delayMs: 0,
+        networkError: true,
+      };
   }
 }
 
@@ -65,7 +76,7 @@ runAdapterContractTests({
   name: "resend",
   createAdapter: () =>
     resend({
-      apiKey: "re_123456789",
+      apiKey: "re_test_123456789",
     }),
   interceptor: {
     success(messageId: string) {
@@ -78,6 +89,7 @@ runAdapterContractTests({
       state = { status: 200, body: { id: "reset-id" }, delayMs: 0 };
     },
   },
+  secret: "re_test_123456789",
   skip: ["recipientRejected", "timeout"],
 });
 

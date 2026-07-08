@@ -10,6 +10,7 @@ interface MockState {
   headers: Record<string, string>;
   body: string;
   delayMs: number;
+  networkError?: boolean;
 }
 
 let state: MockState = {
@@ -21,6 +22,9 @@ let state: MockState = {
 
 const handlers = [
   http.post("https://api.sendgrid.com/v3/mail/send", async () => {
+    if (state.networkError) {
+      return HttpResponse.error();
+    }
     if (state.delayMs > 0) {
       await delay(state.delayMs);
     }
@@ -86,6 +90,14 @@ function getFailureResponse(kind: FailureKind): MockState {
         }),
         delayMs: 0,
       };
+    case "networkError":
+      return {
+        status: 0,
+        headers: {},
+        body: "",
+        delayMs: 0,
+        networkError: true,
+      };
   }
 }
 
@@ -93,7 +105,7 @@ runAdapterContractTests({
   name: "sendgrid",
   createAdapter: () =>
     sendgrid({
-      apiKey: "SG.123456789",
+      apiKey: "SG.test_123456789",
     }),
   interceptor: {
     success(messageId: string) {
@@ -116,6 +128,7 @@ runAdapterContractTests({
       };
     },
   },
+  secret: "SG.test_123456789",
   skip: ["recipientRejected", "timeout"],
 });
 

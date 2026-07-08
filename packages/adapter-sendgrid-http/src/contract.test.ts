@@ -8,21 +8,25 @@ import { sendgridHttp } from "./adapter.js";
 const API_BASE = "https://api.sendgrid.com";
 
 interface MockState {
-  status: number;
-  body: Record<string, unknown>;
-  delayMs: number;
+  status?: number;
+  body?: Record<string, unknown>;
+  delayMs?: number;
+  networkError?: boolean;
 }
 
 let state: MockState = { status: 202, body: {}, delayMs: 0 };
 
 const handlers = [
   http.post(`${API_BASE}/v3/mail/send`, async () => {
-    if (state.delayMs > 0) {
+    if (state.networkError) {
+      return HttpResponse.error();
+    }
+    if (state.delayMs && state.delayMs > 0) {
       await delay(state.delayMs);
     }
-    const messageId = state.body.id as string | undefined;
-    return HttpResponse.json(state.body, {
-      status: state.status,
+    const messageId = state.body?.id as string | undefined;
+    return HttpResponse.json(state.body ?? {}, {
+      status: state.status ?? 202,
       headers: messageId
         ? { "X-Message-Id": messageId, "content-type": "application/json" }
         : { "content-type": "application/json" },
@@ -68,6 +72,8 @@ function getFailureResponse(kind: FailureKind): MockState {
         body: { errors: [{ field: "to", message: "Recipient rejected" }] },
         delayMs: 0,
       };
+    case "networkError":
+      return { networkError: true };
   }
 }
 
@@ -75,7 +81,7 @@ runAdapterContractTests({
   name: "sendgrid-http",
   createAdapter: () =>
     sendgridHttp({
-      apiKey: "SG_123456789",
+      apiKey: "SG.test_123456789",
       baseUrl: API_BASE,
       timeoutMs: 500,
     }),
@@ -90,6 +96,7 @@ runAdapterContractTests({
       state = { status: 202, body: {}, delayMs: 0 };
     },
   },
+  secret: "SG.test_123456789",
   skip: ["recipientRejected"],
 });
 

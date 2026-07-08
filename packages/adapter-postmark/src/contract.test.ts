@@ -11,6 +11,7 @@ interface MockState {
   status: number;
   body: Record<string, unknown>;
   delayMs: number;
+  networkError?: boolean;
 }
 
 let state: MockState = {
@@ -27,6 +28,9 @@ let state: MockState = {
 
 const handlers = [
   http.post(`${API_BASE}/email`, async () => {
+    if (state.networkError) {
+      return HttpResponse.error();
+    }
     if (state.delayMs > 0) {
       await delay(state.delayMs);
     }
@@ -80,6 +84,13 @@ function getFailureResponse(kind: FailureKind): MockState {
         body: { ErrorCode: 406, Message: "Inactive recipient" },
         delayMs: 0,
       };
+    case "networkError":
+      return {
+        status: 0,
+        body: {},
+        delayMs: 0,
+        networkError: true,
+      };
   }
 }
 
@@ -87,7 +98,7 @@ runAdapterContractTests({
   name: "postmark",
   createAdapter: () =>
     postmark({
-      serverToken: "pma_123456789",
+      serverToken: "pma_test_123456789",
       timeoutMs: 500,
     }),
   interceptor: {
@@ -121,6 +132,7 @@ runAdapterContractTests({
       };
     },
   },
+  secret: "pma_test_123456789",
   skip: [],
 });
 
