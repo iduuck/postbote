@@ -1,3 +1,6 @@
+import type { PostboteError } from "./errors.js";
+import type { Middleware, SendContext } from "./pipeline.js";
+
 export interface Address {
   email: string;
   name?: string;
@@ -51,3 +54,17 @@ export interface Adapter {
   readonly name: string;
   send(message: EmailMessage, options?: SendOptions): Promise<SendResult>;
 }
+
+export interface PluginObject<TInputExt = {}, TSendReturn = never> {
+  name: string;
+  transformInput?: (
+    input: EmailMessageInput,
+  ) => EmailMessageInput | Promise<EmailMessageInput>;
+  middleware?: Middleware;
+  readonly __inputExt?: TInputExt;
+  readonly __sendReturn?: TSendReturn;
+}
+
+export type PostbotePlugin<TInputExt = {}, TSendReturn = never> =
+  | Middleware
+  | PluginObject<TInputExt, TSendReturn>;

@@ -13,5 +13,9 @@ export default defineConfig({
         lines: 95,
       },
     },
+    typecheck: {
+      enabled: true,
+      include: ["src/**/*.test-d.ts"],
+    },
   },
 });

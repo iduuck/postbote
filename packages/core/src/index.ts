@@ -11,7 +11,7 @@ export {
   parseAddress,
 } from "./normalize.js";
 export type { Middleware, Next, SendAttempt, SendContext } from "./pipeline.js";
-export type { Postbote, PostboteConfig } from "./postbote.js";
+export type { Postbote } from "./postbote.js";
 export { createPostbote } from "./postbote.js";
 export type {
   Adapter,
@@ -21,6 +21,9 @@ export type {
   EmailMessageInput,
   SendOptions,
   SendResult,
+  PluginObject,
+  PostbotePlugin,
 } from "./types.js";
 export { defineAdapter, httpStatusToErrorCode } from "./define-adapter.js";
 export type { AdapterSpec } from "./define-adapter.js";
+export type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";
