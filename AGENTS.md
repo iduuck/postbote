@@ -38,7 +38,9 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `node scripts/smoke.mjs` | Smoke test: ESM import + CJS `require(esm)` against packed tarballs |
 | `node scripts/ts-compat.mjs` | TS compatibility: public types compile against TS 5.5 + latest |
 
-**Mandatory scripts to run before committing:** `pnpm test`, `pnpm typecheck`, `pnpm lint` and changeset creation.
+**Mandatory scripts to run before committing:** `pnpm test`, `pnpm typecheck`, `pnpm lint`, `node scripts/quality.mjs`, `node scripts/smoke.mjs`, `node scripts/ts-compat.mjs` and changeset creation.
+
+**IMPORTANT:** Before a commit that touches CI gates (`.github/`, `scripts/`), run all three script-based gates **locally** first (`quality`, `smoke`, `ts-compat`). These scripts have historically shipped with trivial bugs that 100 % fail in CI — always verify before pushing.
 
 ## Non-negotiable conventions
 

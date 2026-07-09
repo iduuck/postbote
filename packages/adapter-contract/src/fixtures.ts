@@ -38,7 +38,9 @@ export const fixtures = {
       },
       {
         filename: "photo.png",
-        content: new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]),
+        content: new Uint8Array([
+          137, 80, 78, 71, 13, 10, 26, 10,
+        ]) as Uint8Array,
         contentType: "image/png",
       },
     ],

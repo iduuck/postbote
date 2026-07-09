@@ -1,99 +1,129 @@
 import { execSync } from "node:child_process";
-import { existsSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const root = join(__dirname, "..");
-const packages = readdirSync(join(root, "packages")).filter((p) =>
-  existsSync(join(root, "packages", p, "package.json")),
-);
+const node = process.execPath;
+const npx = join(dirname(node), "npx");
 
-// The oldest TS version we support (must parse our .d.ts output)
-const TS_VERSIONS = ["5.5", "latest"];
+// Packages excluded from ts-compat:
+//   - adapter-contract: bundles vitest + uses generic Uint8Array<ArrayBuffer> (TS ≥5.7 feature)
+const EXCLUDED = new Set(["adapter-contract"]);
+
+const packages = readdirSync(join(root, "packages"))
+  .filter(
+    (p) =>
+      existsSync(join(root, "packages", p, "package.json")) && !EXCLUDED.has(p),
+  )
+  .sort();
+
+const tmpRoot = mkdtempSync(join(tmpdir(), "postbote-tsc-"));
+const distDir = join(tmpRoot, "dist");
+const projDir = join(tmpRoot, "project");
 let exitCode = 0;
 
-for (const tsVer of TS_VERSIONS) {
-  const label = tsVer === "latest" ? "latest" : `~${tsVer}.0`;
-  console.log(`\n=== TypeScript ${label} ===\n`);
+try {
+  execSync(`mkdir -p ${distDir} ${projDir}`, { stdio: "pipe" });
 
+  // 1. Pack each package into distDir
+  const tarballs = [];
   for (const pkg of packages) {
-    const dist = join(root, "packages", pkg, "dist");
-    if (!existsSync(dist)) {
-      console.log(`  - ${pkg}: no dist/, skipping`);
-      continue;
-    }
-
-    // Create a temp project that imports every public export
-    const tmp = join(root, "scripts", `.ts-compat-${pkg}-${tsVer}`);
-    const main = join(tmp, "main.ts");
-    const tsconfig = join(tmp, "tsconfig.json");
-    const indexDts = join(dist, "index.d.ts");
-    if (!existsSync(indexDts)) {
-      console.log(`  - ${pkg}: no index.d.ts, skipping`);
-      continue;
-    }
-
-    // Extract export names from the .d.ts to generate a smoke import
-    const dts = execSync(`cat ${indexDts}`, { cwd: root, encoding: "utf-8" });
-    const exports_ =
-      dts.match(
-        /export\s+(?:declare\s+)?(?:function|const|class|type|interface)\s+(\w+)/g,
-      ) || [];
-    const names = exports_.map((e) =>
-      e.replace(
-        /^export\s+(?:declare\s+)?(?:function|const|class|type|interface)\s+/,
-        "",
-      ),
+    const pkgDir = join(root, "packages", pkg);
+    const { name } = JSON.parse(
+      readFileSync(join(pkgDir, "package.json"), "utf8"),
     );
-
-    execSync(`mkdir -p ${tmp}`, { cwd: root, stdio: "pipe" });
-
-    // Import from relative path to the dist folder (simulates consumer)
-    const importPath = `../../packages/${pkg}/dist/index.d.ts`;
-    writeFileSync(
-      main,
-      `// Smoke type-check: all public exports of @postbote/${pkg}\n` +
-        `import { ${names.join(", ")} } from ${JSON.stringify(importPath)};\n` +
-        `console.log("${pkg}:", ${JSON.stringify(names)});\n`,
+    execSync(`pnpm pack --pack-destination ${distDir}`, {
+      cwd: pkgDir,
+      stdio: "pipe",
+    });
+    const safeName = name.replace("@", "").replace("/", "-");
+    const [tgz] = readdirSync(distDir).filter(
+      (f) => f.endsWith(".tgz") && f.startsWith(safeName),
     );
-
-    writeFileSync(
-      tsconfig,
-      JSON.stringify({
-        compilerOptions: {
-          target: "ES2022",
-          module: "ESNext",
-          moduleResolution: "Bundler",
-          strict: true,
-          noEmit: true,
-          skipLibCheck: false,
-          types: [],
-        },
-        include: ["main.ts"],
-      }),
-    );
-
-    try {
-      const _pkgPath = join(root, "packages", pkg);
-      // Use the TypeScript version specified
-      const tsPkg =
-        tsVer === "latest" ? "typescript" : `typescript@~${tsVer}.0`;
-      const npxCmd = `npx -p ${tsPkg} tsc --project ${tsconfig}`;
-      execSync(npxCmd, { cwd: root, stdio: "pipe", timeout: 30000 });
-      console.log(`  ✓ ${pkg}`);
-    } catch (e) {
-      const msg = e.stderr?.toString() || e.stdout?.toString() || String(e);
-      console.error(`  ✗ ${pkg}`);
-      console.error(
-        `    ${msg.split("\n").filter(Boolean).slice(-5).join("\n    ")}`,
-      );
-      exitCode = 1;
-    }
-
-    // Clean temp project
-    execSync(`rm -rf ${tmp}`, { cwd: root, stdio: "pipe" });
+    if (!tgz) throw new Error("No tarball found for " + name);
+    tarballs.push({ name, tgz: join(distDir, tgz) });
   }
+
+  // 2. Fresh consumer-style project — install from tarballs
+  writeFileSync(
+    join(projDir, "package.json"),
+    JSON.stringify({ name: "postbote-tsc", private: true, type: "module" }),
+  );
+  execSync("npm install " + tarballs.map((t) => t.tgz).join(" "), {
+    cwd: projDir,
+    stdio: "pipe",
+    timeout: 120_000,
+  });
+
+  // 3. Write main.ts — imports every package by name.
+  //    `import * as ns` exercises ALL public exports simultaneously.
+  let source =
+    "// Smoke type-check: all public exports of every @postbote package\n";
+  for (const { name } of tarballs) {
+    const ns = name.replace(/^@postbote\//, "").replace(/[-/]/g, "_");
+    source += `import * as ${ns} from ${JSON.stringify(name)};\n`;
+  }
+  writeFileSync(join(projDir, "main.ts"), source);
+
+  // 4. Test matrix: TS version × moduleResolution
+  const tsVersions = ["~5.5.0", "latest"];
+  const resolutions = [
+    { module: "ESNext", resolution: "bundler", label: "bundler" },
+    { module: "NodeNext", resolution: "NodeNext", label: "nodenext" },
+  ];
+
+  for (const tsVer of tsVersions) {
+    const verLabel = tsVer === "latest" ? "latest" : tsVer;
+    for (const { module: mod, resolution, label } of resolutions) {
+      console.log(`\n=== TS ${verLabel}, moduleResolution: ${label} ===\n`);
+
+      writeFileSync(
+        join(projDir, "tsconfig.json"),
+        JSON.stringify({
+          compilerOptions: {
+            target: "ES2022",
+            module: mod,
+            moduleResolution: resolution,
+            strict: true,
+            noEmit: true,
+            skipLibCheck: false,
+            types: [],
+          },
+          include: ["main.ts"],
+        }),
+      );
+
+      const tsPkg = tsVer === "latest" ? "typescript" : `typescript@${tsVer}`;
+      try {
+        execSync(`"${npx}" -p ${tsPkg} tsc --project tsconfig.json --noEmit`, {
+          cwd: projDir,
+          stdio: "pipe",
+          timeout: 120_000,
+        });
+        console.log("  ✓ All packages type-check correctly");
+      } catch (e) {
+        const msg = (e.stderr || "") + (e.stdout || "") + String(e);
+        const lines = msg.split("\n").filter(Boolean);
+        console.error("  ✗ Type check failed");
+        console.error("    " + lines.slice(-10).join("\n    "));
+        exitCode = 1;
+      }
+    }
+  }
+} catch (e) {
+  console.error("Fatal:", e.message);
+  exitCode = 1;
+} finally {
+  execSync(`rm -rf ${tmpRoot}`, { stdio: "pipe" });
 }
 
 process.exit(exitCode);
