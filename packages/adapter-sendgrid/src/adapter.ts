@@ -1,10 +1,5 @@
-import type {
-  Adapter,
-  EmailMessage,
-  SendOptions,
-  SendResult,
-} from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { defineAdapter, type AdapterSpec } from "@postbote/core";
+import type { EmailMessage } from "@postbote/core";
 import sgMail from "@sendgrid/mail";
 import { toPostboteErrorFromSdkError } from "./errors.js";
 import { toSendGridSdkPayload } from "./map.js";
@@ -24,7 +19,7 @@ export interface SendGridOptions {
   client?: SendGridClient;
 }
 
-export function sendgrid(options: SendGridOptions): Adapter {
+export function sendgrid(options: SendGridOptions) {
   let client: SendGridClient;
 
   if (options.client) {
@@ -38,20 +33,9 @@ export function sendgrid(options: SendGridOptions): Adapter {
     client = mailService;
   }
 
-  return {
+  const spec: AdapterSpec = {
     name: "sendgrid",
-
-    async send(
-      message: EmailMessage,
-      sendOptions?: SendOptions,
-    ): Promise<SendResult> {
-      if (sendOptions?.signal?.aborted) {
-        throw new PostboteError("Send aborted", {
-          code: "ABORTED",
-          provider: "sendgrid",
-        });
-      }
-
+    async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {
       const payload = toSendGridSdkPayload(message);
 
       let result: [SendGridResponse, Record<string, unknown>];
@@ -65,17 +49,12 @@ export function sendgrid(options: SendGridOptions): Adapter {
       const messageId = response.headers?.["x-message-id"];
 
       if (!messageId) {
-        throw new PostboteError("Send failed: missing message ID", {
-          code: "UNKNOWN",
-          provider: "sendgrid",
-        });
+        return { messageId: "", raw: response };
       }
 
-      return {
-        messageId: String(messageId),
-        provider: "sendgrid",
-        raw: response,
-      };
+      return { messageId: String(messageId), raw: response };
     },
   };
+
+  return defineAdapter(spec);
 }

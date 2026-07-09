@@ -1,10 +1,5 @@
-import type {
-  Adapter,
-  EmailMessage,
-  SendOptions,
-  SendResult,
-} from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { defineAdapter, type AdapterSpec } from "@postbote/core";
+import type { EmailMessage } from "@postbote/core";
 import type { Message } from "postmark";
 import { ServerClient } from "postmark";
 import { toPostboteErrorFromSdkError } from "./errors.js";
@@ -19,7 +14,7 @@ export interface PostmarkOptions {
   timeoutMs?: number;
 }
 
-export function postmark(options: PostmarkOptions): Adapter {
+export function postmark(options: PostmarkOptions) {
   const sdkClient =
     options.client ??
     new ServerClient(options.serverToken, {
@@ -30,20 +25,9 @@ export function postmark(options: PostmarkOptions): Adapter {
 
   const sendEmail = sdkClient.sendEmail.bind(sdkClient);
 
-  return {
+  const spec: AdapterSpec = {
     name: "postmark",
-
-    async send(
-      message: EmailMessage,
-      sendOptions?: SendOptions,
-    ): Promise<SendResult> {
-      if (sendOptions?.signal?.aborted) {
-        throw new PostboteError("Send aborted", {
-          code: "ABORTED",
-          provider: "postmark",
-        });
-      }
-
+    async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {
       const payload = toPostmarkSdkPayload(message, options.messageStream);
 
       let result: Awaited<ReturnType<ServerClient["sendEmail"]>>;
@@ -53,18 +37,9 @@ export function postmark(options: PostmarkOptions): Adapter {
         throw toPostboteErrorFromSdkError(err);
       }
 
-      if (!result.MessageID) {
-        throw new PostboteError("Send failed: missing message ID", {
-          code: "UNKNOWN",
-          provider: "postmark",
-        });
-      }
-
-      return {
-        messageId: result.MessageID,
-        provider: "postmark",
-        raw: result,
-      };
+      return { messageId: result.MessageID, raw: result };
     },
   };
+
+  return defineAdapter(spec);
 }
