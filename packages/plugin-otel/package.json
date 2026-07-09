@@ -1,0 +1,41 @@
+{
+  "name": "@postbote/plugin-otel",
+  "version": "0.0.0",
+  "description": "OpenTelemetry instrumentation for Postbote — spans and events per send",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.9",
+    "@postbote/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "^1.9",
+    "@opentelemetry/sdk-trace-base": "^1.30",
+    "@postbote/core": "workspace:^",
+    "@postbote/testing": "workspace:^",
+    "vitest": "^3"
+  }
+}
