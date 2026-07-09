@@ -1,5 +1,5 @@
-import { defineAdapter, type AdapterSpec } from "@postbote/core";
 import type { EmailMessage } from "@postbote/core";
+import { type AdapterSpec, defineAdapter } from "@postbote/core";
 import { Resend } from "resend";
 import type { SdkError } from "./errors.js";
 import { toPostboteErrorFromSdkError } from "./errors.js";
@@ -32,10 +32,7 @@ export function resend(options: ResendOptions) {
   const spec: AdapterSpec = {
     name: "resend",
     mapUnknownError: () => "PROVIDER_UNAVAILABLE" as const,
-    async send(
-      message: EmailMessage,
-      ctx: { signal?: AbortSignal },
-    ) {
+    async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {
       const payload = toResendSdkPayload(message);
       const result = await send(payload);
 

@@ -1,6 +1,6 @@
-import { describe, it, expectTypeOf } from "vitest";
-import type { SendResult, PostboteError } from "@postbote/core";
+import type { PostboteError, SendResult } from "@postbote/core";
 import type { Result } from "better-result";
+import { describe, expectTypeOf, it } from "vitest";
 
 describe("betterResult types", () => {
   it("send returns Promise<Result<SendResult, PostboteError>>", async () => {

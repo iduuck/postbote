@@ -169,8 +169,14 @@ describe("createPostbote", () => {
     });
 
     it("two wrapSend plugins throw TypeError at creation", () => {
-      const a = { name: "a", wrapSend: (run: () => Promise<SendResult>) => run() } as PluginObject;
-      const b = { name: "b", wrapSend: (run: () => Promise<SendResult>) => run() } as PluginObject;
+      const a = {
+        name: "a",
+        wrapSend: (run: () => Promise<SendResult>) => run(),
+      } as PluginObject;
+      const b = {
+        name: "b",
+        wrapSend: (run: () => Promise<SendResult>) => run(),
+      } as PluginObject;
       expect(() =>
         createPostbote({
           adapter: fakeAdapter(),

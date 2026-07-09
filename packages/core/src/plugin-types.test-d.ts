@@ -1,14 +1,36 @@
-import { describe, it, expectTypeOf, assertType } from "vitest";
-import { createPostbote, defineAdapter, type PluginInputExt, type PluginObject, type EmailMessageInput, type SendResult } from "@postbote/core";
+import {
+  createPostbote,
+  defineAdapter,
+  type EmailMessageInput,
+  type Middleware,
+  type PluginInputExt,
+  type PluginObject,
+  type SendResult,
+} from "@postbote/core";
+import { assertType, describe, expectTypeOf, it } from "vitest";
 
-const adapter = defineAdapter({ name: "test", send: () => Promise.resolve({ messageId: "1" }) });
-const base = { from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" };
+const adapter = defineAdapter({
+  name: "test",
+  send: () => Promise.resolve({ messageId: "1" }),
+});
+const base = {
+  from: "f@t.com",
+  to: "t@t.com",
+  subject: "s",
+  html: "<p>hi</p>",
+};
 
 function extPlugin<TExt extends Record<string, unknown>>(): PluginObject<TExt> {
   return { name: "ext" } as PluginObject<TExt>;
 }
 
-type SendInput<P> = Parameters<P extends { send: (...args: infer A) => unknown } ? (...args: A) => unknown : never>[0];
+type SendInput<P> = Parameters<
+  P extends { send: (...args: infer A) => unknown }
+    ? (...args: A) => unknown
+    : never
+>[0];
+
+const noopMiddleware: Middleware = (_ctx, next) => next();
 
 describe("plugin types", () => {
   it("without plugins send() accepts EmailMessageInput", () => {
@@ -17,13 +39,21 @@ describe("plugin types", () => {
   });
 
   it("with PluginObject extension, send input includes ext fields", () => {
-    const pb = createPostbote({ adapter, plugins: [extPlugin<{ body?: string }>()] });
+    const pb = createPostbote({
+      adapter,
+      plugins: [extPlugin<{ body?: string }>()],
+    });
     type Input = SendInput<typeof pb>;
-    expectTypeOf<Input>().toMatchTypeOf<EmailMessageInput & { body?: string }>();
+    expectTypeOf<Input>().toMatchTypeOf<
+      EmailMessageInput & { body?: string }
+    >();
   });
 
   it("html and text remain available alongside extension", () => {
-    const pb = createPostbote({ adapter, plugins: [extPlugin<{ body?: string }>()] });
+    const pb = createPostbote({
+      adapter,
+      plugins: [extPlugin<{ body?: string }>()],
+    });
     type Input = SendInput<typeof pb>;
     expectTypeOf<EmailMessageInput>().toMatchTypeOf<Input>();
   });
@@ -39,12 +69,39 @@ describe("plugin types", () => {
     const p1 = extPlugin<{ a: number }>();
     const p2 = extPlugin<{ b: string }>();
     const pb = createPostbote({ adapter, plugins: [p1, p2] });
-    const msg: EmailMessageInput & { a: number; b: string } = { ...base, a: 1, b: "x" };
+    const msg: EmailMessageInput & { a: number; b: string } = {
+      ...base,
+      a: 1,
+      b: "x",
+    };
     assertType(pb.send(msg));
   });
 
   it("PluginInputExt resolves correctly", () => {
     type Res = PluginInputExt<[PluginObject<{ body?: string }>]>;
     expectTypeOf<Res>().toMatchTypeOf<{ body?: string }>();
+  });
+
+  it("bare Middleware in tuple does not change send return type", () => {
+    const pb = createPostbote({ adapter, plugins: [noopMiddleware] });
+    assertType<Promise<SendResult>>(pb.send(base));
+  });
+
+  it("mixed tuple of Middleware and PluginObject does not change send return type", () => {
+    const pb = createPostbote({
+      adapter,
+      plugins: [noopMiddleware, extPlugin<{ body?: string }>()],
+    });
+    type Input = SendInput<typeof pb>;
+    expectTypeOf<Input>().toMatchTypeOf<
+      EmailMessageInput & { body?: string }
+    >();
+    assertType<Promise<SendResult>>(pb.send(base));
+  });
+
+  it("Middleware[] array degrades to base send return", () => {
+    const plugins: Middleware[] = [noopMiddleware];
+    const pb = createPostbote({ adapter, plugins });
+    assertType<Promise<SendResult>>(pb.send(base));
   });
 });

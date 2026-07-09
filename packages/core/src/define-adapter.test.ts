@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { defineAdapter, httpStatusToErrorCode } from "./define-adapter.js";
 import { PostboteError } from "./errors.js";
-import type { EmailMessage, Adapter } from "./types.js";
+import type { Adapter, EmailMessage } from "./types.js";
 
 const validMessage: EmailMessage = {
   from: { email: "from@test.dev" },
@@ -24,25 +24,34 @@ describe("defineAdapter", () => {
 
   it("throws TypeError on invalid name (uppercase)", () => {
     expect(() =>
-      defineAdapter({ name: "MyProvider", async send() {
-        return { messageId: "x" };
-      } }),
+      defineAdapter({
+        name: "MyProvider",
+        async send() {
+          return { messageId: "x" };
+        },
+      }),
     ).toThrow(TypeError);
   });
 
   it("throws TypeError on invalid name (spaces)", () => {
     expect(() =>
-      defineAdapter({ name: "my provider", async send() {
-        return { messageId: "x" };
-      } }),
+      defineAdapter({
+        name: "my provider",
+        async send() {
+          return { messageId: "x" };
+        },
+      }),
     ).toThrow(TypeError);
   });
 
   it("throws TypeError on invalid name (underscore)", () => {
     expect(() =>
-      defineAdapter({ name: "my_provider", async send() {
-        return { messageId: "x" };
-      } }),
+      defineAdapter({
+        name: "my_provider",
+        async send() {
+          return { messageId: "x" };
+        },
+      }),
     ).toThrow(TypeError);
   });
 
@@ -85,7 +94,9 @@ describe("defineAdapter", () => {
     const ctrl = new AbortController();
     ctrl.abort();
 
-    await expect(adapter.send(validMessage, { signal: ctrl.signal })).rejects.toThrow(PostboteError);
+    await expect(
+      adapter.send(validMessage, { signal: ctrl.signal }),
+    ).rejects.toThrow(PostboteError);
     expect(spy).not.toHaveBeenCalled();
   });
 

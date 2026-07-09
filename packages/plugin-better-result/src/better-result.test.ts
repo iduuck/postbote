@@ -1,7 +1,7 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { Result } from "better-result";
-import { PostboteError, createPostbote } from "@postbote/core";
+import { createPostbote, PostboteError } from "@postbote/core";
 import { createTestAdapter, type TestAdapter } from "@postbote/testing";
+import { Result } from "better-result";
+import { afterEach, describe, expect, it } from "vitest";
 import { betterResult } from "./index.js";
 
 const adapter: TestAdapter = createTestAdapter({ name: "test" });

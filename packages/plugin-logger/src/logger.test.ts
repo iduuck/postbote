@@ -1,8 +1,8 @@
+import { createPostbote, PostboteError } from "@postbote/core";
+import { failover } from "@postbote/plugin-failover";
+import { createTestAdapter } from "@postbote/testing";
 import { describe, expect, it, vi } from "vitest";
 import { logger } from "./index.js";
-import { PostboteError, createPostbote } from "@postbote/core";
-import { createTestAdapter } from "@postbote/testing";
-import { failover } from "@postbote/plugin-failover";
 
 describe("logger", () => {
   it("emits send:start and send:success on success", async () => {
@@ -15,7 +15,12 @@ describe("logger", () => {
         }),
       ],
     });
-    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" });
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "s",
+      html: "<p>hi</p>",
+    });
     expect(events.length).toBe(2);
     expect(events[0]).toMatchObject({ type: "send:start", provider: "test" });
     expect(events[1]).toMatchObject({ type: "send:success", provider: "test" });
@@ -34,11 +39,19 @@ describe("logger", () => {
       ],
     });
     await expect(
-      pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" }),
+      pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "s",
+        html: "<p>hi</p>",
+      }),
     ).rejects.toThrow();
     expect(events.length).toBe(3);
     expect(events[0]).toMatchObject({ type: "send:start" });
-    expect(events[1]).toMatchObject({ type: "send:error", error: { code: "PROVIDER_UNAVAILABLE" } });
+    expect(events[1]).toMatchObject({
+      type: "send:error",
+      error: { code: "PROVIDER_UNAVAILABLE" },
+    });
     expect(events[2]).toMatchObject({ type: "attempt:error", adapter: "bad" });
   });
 
@@ -80,7 +93,12 @@ describe("logger", () => {
         }),
       ],
     });
-    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" });
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "s",
+      html: "<p>hi</p>",
+    });
     const startEvent = events[0] as any;
     expect(startEvent.to).toEqual(["t@t.com"]);
   });

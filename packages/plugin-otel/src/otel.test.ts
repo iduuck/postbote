@@ -1,12 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { otel } from "./index.js";
-import { createPostbote } from "@postbote/core";
-import { createTestAdapter } from "@postbote/testing";
 import {
+  BasicTracerProvider,
   InMemorySpanExporter,
   SimpleSpanProcessor,
-  BasicTracerProvider,
 } from "@opentelemetry/sdk-trace-base";
+import { createPostbote } from "@postbote/core";
+import { createTestAdapter } from "@postbote/testing";
+import { describe, expect, it } from "vitest";
+import { otel } from "./index.js";
 
 describe("otel", () => {
   it("creates a span with OK status on success", async () => {
@@ -84,10 +84,12 @@ describe("otel", () => {
 
     const pb = createPostbote({
       adapter: createTestAdapter({ name: "test" }),
-      plugins: [otel({
-        tracer: provider.getTracer("test"),
-        captureRecipients: "none",
-      })],
+      plugins: [
+        otel({
+          tracer: provider.getTracer("test"),
+          captureRecipients: "none",
+        }),
+      ],
     });
     await pb.send({
       from: "f@t.com",
@@ -99,8 +101,6 @@ describe("otel", () => {
     await new Promise((r) => setTimeout(r, 50));
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(1);
-    expect(
-      spans[0]?.attributes["postbote.recipient_count"],
-    ).toBeUndefined();
+    expect(spans[0]?.attributes["postbote.recipient_count"]).toBeUndefined();
   });
 });

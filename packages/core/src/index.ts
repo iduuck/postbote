@@ -1,3 +1,5 @@
+export type { AdapterSpec } from "./define-adapter.js";
+export { defineAdapter, httpStatusToErrorCode } from "./define-adapter.js";
 export type { ErrorCode } from "./errors.js";
 export {
   isPostboteError,
@@ -11,6 +13,7 @@ export {
   parseAddress,
 } from "./normalize.js";
 export type { Middleware, Next, SendAttempt, SendContext } from "./pipeline.js";
+export type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";
 export type { Postbote } from "./postbote.js";
 export { createPostbote } from "./postbote.js";
 export type {
@@ -19,11 +22,8 @@ export type {
   Attachment,
   EmailMessage,
   EmailMessageInput,
-  SendOptions,
-  SendResult,
   PluginObject,
   PostbotePlugin,
+  SendOptions,
+  SendResult,
 } from "./types.js";
-export { defineAdapter, httpStatusToErrorCode } from "./define-adapter.js";
-export type { AdapterSpec } from "./define-adapter.js";
-export type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";

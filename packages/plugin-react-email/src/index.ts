@@ -37,7 +37,9 @@ export function reactEmail(
         return {
           ...input,
           html,
-          ...(plainText && !input.text ? { text: await render(body as ReactElement, { plainText: true }) } : {}),
+          ...(plainText && !input.text
+            ? { text: await render(body as ReactElement, { plainText: true }) }
+            : {}),
         } as typeof input;
       } catch (err) {
         throw toPostboteError(err, "plugin-react-email");

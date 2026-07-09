@@ -1,9 +1,5 @@
-import { describe, it, assertType } from "vitest";
-import {
-  createPostbote,
-  defineAdapter,
-  type SendResult,
-} from "@postbote/core";
+import { createPostbote, defineAdapter, type SendResult } from "@postbote/core";
+import { assertType, describe, it } from "vitest";
 
 const adapter = defineAdapter({
   name: "test",

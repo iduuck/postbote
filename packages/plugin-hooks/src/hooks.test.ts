@@ -1,7 +1,7 @@
+import { createPostbote, PostboteError } from "@postbote/core";
+import { createTestAdapter } from "@postbote/testing";
 import { describe, expect, it, vi } from "vitest";
 import { hooks } from "./index.js";
-import { PostboteError, createPostbote } from "@postbote/core";
-import { createTestAdapter } from "@postbote/testing";
 
 describe("hooks", () => {
   it("calls beforeSend before the adapter", async () => {
@@ -16,7 +16,12 @@ describe("hooks", () => {
         }),
       ],
     });
-    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" });
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "s",
+      html: "<p>hi</p>",
+    });
     expect(order).toEqual(["before"]);
   });
 
@@ -32,7 +37,12 @@ describe("hooks", () => {
       ],
     });
     await expect(
-      pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" }),
+      pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "s",
+        html: "<p>hi</p>",
+      }),
     ).rejects.toMatchObject({ code: "CANCELLED", retryable: false });
   });
 
@@ -113,7 +123,12 @@ describe("hooks", () => {
       ],
     });
     await expect(
-      pb.send({ from: "f@t.com", to: "t@t.com", subject: "s", html: "<p>hi</p>" }),
+      pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "s",
+        html: "<p>hi</p>",
+      }),
     ).rejects.toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
     expect(onErrorSpy).toHaveBeenCalled();
   });

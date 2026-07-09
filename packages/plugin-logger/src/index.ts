@@ -48,9 +48,7 @@ export function logger(options: LoggerOptions): Middleware {
       provider: ctx.adapter.name,
       toCount: capture === "none" ? 0 : toCount,
       timestamp: start,
-      ...(capture === "full"
-        ? { to: ctx.message.to.map((a) => a.email) }
-        : {}),
+      ...(capture === "full" ? { to: ctx.message.to.map((a) => a.email) } : {}),
     };
 
     safeEmit(options.onEvent, startEvent);
@@ -92,7 +90,11 @@ export function logger(options: LoggerOptions): Middleware {
       const pbError =
         err && typeof err === "object" && "code" in err
           ? (err as { code: ErrorCode; retryable: boolean; message: string })
-          : { code: "UNKNOWN" as ErrorCode, retryable: false, message: String(err) };
+          : {
+              code: "UNKNOWN" as ErrorCode,
+              retryable: false,
+              message: String(err),
+            };
 
       safeEmit(options.onEvent, {
         type: "send:error",

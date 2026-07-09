@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
 import { createTestAdapter } from "@postbote/testing";
-import { reactEmail } from "./index.js";
-import React from "react";
 import type { ReactElement } from "react";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
+import { reactEmail } from "./index.js";
 
 const adapter = createTestAdapter({ name: "test" });
 
@@ -35,7 +35,9 @@ describe("reactEmail plugin", () => {
   it("passes through input without body unchanged", async () => {
     const { createPostbote } = await import("@postbote/core");
     const a = createTestAdapter({ name: "test" });
-    const spy = vi.spyOn(a, "send").mockResolvedValue({ messageId: "1" } as any);
+    const spy = vi
+      .spyOn(a, "send")
+      .mockResolvedValue({ messageId: "1" } as any);
 
     const pb = createPostbote({ adapter: a, plugins: [reactEmail()] });
 
@@ -54,7 +56,9 @@ describe("reactEmail plugin", () => {
   it("generates text when plainText is true and no explicit text", async () => {
     const { createPostbote } = await import("@postbote/core");
     const a = createTestAdapter({ name: "test" });
-    const spy = vi.spyOn(a, "send").mockResolvedValue({ messageId: "1" } as any);
+    const spy = vi
+      .spyOn(a, "send")
+      .mockResolvedValue({ messageId: "1" } as any);
 
     const pb = createPostbote({
       adapter: a,
@@ -76,7 +80,9 @@ describe("reactEmail plugin", () => {
   it("does not override explicit text when plainText is true", async () => {
     const { createPostbote } = await import("@postbote/core");
     const a = createTestAdapter({ name: "test" });
-    const spy = vi.spyOn(a, "send").mockResolvedValue({ messageId: "1" } as any);
+    const spy = vi
+      .spyOn(a, "send")
+      .mockResolvedValue({ messageId: "1" } as any);
 
     const pb = createPostbote({
       adapter: a,
@@ -98,7 +104,9 @@ describe("reactEmail plugin", () => {
   it("does not generate text when plainText is false", async () => {
     const { createPostbote } = await import("@postbote/core");
     const a = createTestAdapter({ name: "test" });
-    const spy = vi.spyOn(a, "send").mockResolvedValue({ messageId: "1" } as any);
+    const spy = vi
+      .spyOn(a, "send")
+      .mockResolvedValue({ messageId: "1" } as any);
 
     const pb = createPostbote({
       adapter: a,

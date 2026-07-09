@@ -17,10 +17,7 @@ import type {
 } from "./types.js";
 
 export interface Postbote<TExt = {}, TSend = Promise<SendResult>> {
-  send(
-    input: EmailMessageInput & TExt,
-    options?: SendOptions,
-  ): TSend;
+  send(input: EmailMessageInput & TExt, options?: SendOptions): TSend;
   readonly adapter: Adapter;
 }
 
@@ -28,8 +25,11 @@ function findWrapSend(
   plugins: readonly any[],
 ): PluginObject<{}, never>["wrapSend"] | undefined {
   const wrapSends = plugins.filter(
-    (p): p is PluginObject & { wrapSend: NonNullable<PluginObject["wrapSend"]> } =>
-      isPluginObject(p) && typeof p.wrapSend === "function",
+    (
+      p,
+    ): p is PluginObject & {
+      wrapSend: NonNullable<PluginObject["wrapSend"]>;
+    } => isPluginObject(p) && typeof p.wrapSend === "function",
   );
   if (wrapSends.length > 1) {
     const names = wrapSends.map((p) => p.name).join(", ");
@@ -42,9 +42,10 @@ function findWrapSend(
 
 export function createPostbote<
   const Ps extends readonly PostbotePlugin<any, any>[] = [],
->(
-  config: { adapter: Adapter; plugins?: Ps },
-): Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>> {
+>(config: {
+  adapter: Adapter;
+  plugins?: Ps;
+}): Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>> {
   const plugins = config.plugins ?? [];
   const middlewares = getMiddlewares(plugins);
   const pipeline = compose(middlewares);

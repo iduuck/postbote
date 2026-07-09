@@ -1,5 +1,5 @@
-import { defineAdapter, type AdapterSpec } from "@postbote/core";
 import type { EmailMessage } from "@postbote/core";
+import { type AdapterSpec, defineAdapter } from "@postbote/core";
 import sgMail from "@sendgrid/mail";
 import { toPostboteErrorFromSdkError } from "./errors.js";
 import { toSendGridSdkPayload } from "./map.js";

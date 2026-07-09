@@ -1,13 +1,17 @@
-import { describe, it, assertType, expectTypeOf } from "vitest";
 import { createPostbote } from "@postbote/core";
 import { createTestAdapter } from "@postbote/testing";
-import { reactEmail, type ReactEmailExt } from "./index.js";
-import React from "react";
 import type { ReactElement } from "react";
+import React from "react";
+import { assertType, describe, expectTypeOf, it } from "vitest";
+import { type ReactEmailExt, reactEmail } from "./index.js";
 
 const adapter = createTestAdapter({ name: "test" });
 
-type SendInput<P> = Parameters<P extends { send: (...args: infer A) => unknown } ? (...args: A) => unknown : never>[0];
+type SendInput<P> = Parameters<
+  P extends { send: (...args: infer A) => unknown }
+    ? (...args: A) => unknown
+    : never
+>[0];
 
 function bodyStr<T>(_x: T): void {}
 
@@ -23,22 +27,42 @@ describe("reactEmail types", () => {
   it("body: string is not allowed", () => {
     const pb = createPostbote({ adapter, plugins: [reactEmail()] });
     // @ts-expect-error body must be ReactElement, not string
-    pb.send({ from: "f", to: "t", subject: "s", html: "<p>hi</p>", body: "<h1>hi</h1>" });
+    pb.send({
+      from: "f",
+      to: "t",
+      subject: "s",
+      html: "<p>hi</p>",
+      body: "<h1>hi</h1>",
+    });
   });
 
   it("body with html is allowed simultaneously", () => {
     const pb = createPostbote({ adapter, plugins: [reactEmail()] });
-    const msg = { from: "f@t.com" as const, to: "t@t.com" as const, subject: "s", html: "<p>fallback</p>", body: React.createElement("h1") as ReactElement };
+    const msg = {
+      from: "f@t.com" as const,
+      to: "t@t.com" as const,
+      subject: "s",
+      html: "<p>fallback</p>",
+      body: React.createElement("h1") as ReactElement,
+    };
     assertType(pb.send(msg));
   });
 
   it("without plugin, body is not allowed", () => {
     const pb = createPostbote({ adapter });
     // @ts-expect-error body does not exist without reactEmail plugin
-    pb.send({ from: "f", to: "t", subject: "s", html: "<p>hi</p>", body: React.createElement("h1") });
+    pb.send({
+      from: "f",
+      to: "t",
+      subject: "s",
+      html: "<p>hi</p>",
+      body: React.createElement("h1"),
+    });
   });
 
   it("ReactEmailExt describes body as ReactElement", () => {
-    assertType<ReactElement | undefined>(null as unknown as ReactEmailExt["body"]);
+    assertType<ReactElement | undefined>(
+      null as unknown as ReactEmailExt["body"],
+    );
   });
 });

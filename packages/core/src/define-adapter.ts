@@ -1,4 +1,4 @@
-import { PostboteError, toPostboteError, type ErrorCode } from "./errors.js";
+import { type ErrorCode, PostboteError, toPostboteError } from "./errors.js";
 import type { Adapter, EmailMessage, SendResult } from "./types.js";
 
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
