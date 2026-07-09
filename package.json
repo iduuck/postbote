@@ -14,7 +14,9 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
-    "quality": "node scripts/quality.mjs"
+    "quality": "node scripts/quality.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "ts-compat": "node scripts/ts-compat.mjs"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18",

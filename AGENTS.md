@@ -34,7 +34,9 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `pnpm --filter @postbote/core test:coverage` | Coverage (threshold: ≥95 %) |
 | `pnpm changeset` | Create a new changeset |
 | `pnpm version && pnpm release` | Changesets publish |
-| `node scripts/quality.mjs` | Quality gates: `attw` (type consistency) + `size-limit` (bundle budgets) |
+| `node scripts/quality.mjs` | Quality gates: `publint` + `attw` (type consistency) + `size-limit` (bundle budgets) |
+| `node scripts/smoke.mjs` | Smoke test: ESM import + CJS `require(esm)` against packed tarballs |
+| `node scripts/ts-compat.mjs` | TS compatibility: public types compile against TS 5.5 + latest |
 
 **Mandatory scripts to run before committing:** `pnpm test`, `pnpm typecheck`, `pnpm lint` and changeset creation.
 

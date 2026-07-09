@@ -4,7 +4,7 @@
 
 Please report security vulnerabilities via **GitHub Private Security Advisories** at:
 
-https://github.com/<org>/postbote/security/advisories
+https://github.com/postbote/postbote/security/advisories
 
 Do **not** file a public issue for security vulnerabilities.
 
@@ -25,5 +25,5 @@ You will receive a response within 72 hours. We will coordinate a fix and disclo
 - Build pipeline (npm provenance, supply chain)
 
 Out of scope:
-- API keys exposed in logs (these are prevented by `PostboteError.cause` — see agent guidelines)
+- API keys exposed in logs (prevented by `PostboteError.cause` — response body only, never request headers)
 - Email header injection from unvalidated input (prevented by `normalizeMessage` — CRLF validation)
