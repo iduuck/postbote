@@ -3,6 +3,7 @@ const BRAND = Symbol.for("postbote.error");
 export type ErrorCode =
   | "ABORTED"
   | "AUTH"
+  | "CANCELLED"
   | "INVALID_MESSAGE"
   | "RECIPIENT_REJECTED"
   | "RATE_LIMITED"
@@ -13,6 +14,7 @@ export type ErrorCode =
 const DEFAULT_RETRYABLE: Record<ErrorCode, boolean> = {
   ABORTED: false,
   AUTH: false,
+  CANCELLED: false,
   INVALID_MESSAGE: false,
   RECIPIENT_REJECTED: false,
   RATE_LIMITED: true,
