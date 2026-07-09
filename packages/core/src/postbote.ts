@@ -1,11 +1,16 @@
 import { normalizeMessage } from "./normalize.js";
-import type { Middleware, SendContext } from "./pipeline.js";
+import type { SendContext } from "./pipeline.js";
 import { compose } from "./pipeline.js";
 import type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";
-import { applyTransforms, getMiddlewares } from "./plugin-types.js";
+import {
+  applyTransforms,
+  getMiddlewares,
+  isPluginObject,
+} from "./plugin-types.js";
 import type {
   Adapter,
   EmailMessageInput,
+  PluginObject,
   PostbotePlugin,
   SendOptions,
   SendResult,
@@ -19,13 +24,31 @@ export interface Postbote<TExt = {}, TSend = Promise<SendResult>> {
   readonly adapter: Adapter;
 }
 
+function findWrapSend(
+  plugins: readonly any[],
+): PluginObject<{}, never>["wrapSend"] | undefined {
+  const wrapSends = plugins.filter(
+    (p): p is PluginObject & { wrapSend: NonNullable<PluginObject["wrapSend"]> } =>
+      isPluginObject(p) && typeof p.wrapSend === "function",
+  );
+  if (wrapSends.length > 1) {
+    const names = wrapSends.map((p) => p.name).join(", ");
+    throw new TypeError(
+      `At most one plugin with wrapSend is allowed, but found ${wrapSends.length}: ${names}`,
+    );
+  }
+  return wrapSends[0]?.wrapSend;
+}
+
 export function createPostbote<
-  const Ps extends readonly PostbotePlugin[] = [],
+  const Ps extends readonly PostbotePlugin<any, any>[] = [],
 >(
   config: { adapter: Adapter; plugins?: Ps },
 ): Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>> {
-  const middlewares = getMiddlewares(config.plugins ?? []);
+  const plugins = config.plugins ?? [];
+  const middlewares = getMiddlewares(plugins);
   const pipeline = compose(middlewares);
+  const wrapSend = findWrapSend(plugins);
 
   return {
     adapter: config.adapter,
@@ -33,18 +56,18 @@ export function createPostbote<
       input: EmailMessageInput,
       options?: SendOptions,
     ): Promise<SendResult> {
-      const transformed = await applyTransforms(
-        input,
-        config.plugins ?? [],
-      );
-      const message = normalizeMessage(transformed);
-      const ctx: SendContext = {
-        message,
-        adapter: config.adapter,
-        attempts: [],
-        signal: options?.signal,
+      const run = async (): Promise<SendResult> => {
+        const transformed = await applyTransforms(input, plugins);
+        const message = normalizeMessage(transformed);
+        const ctx: SendContext = {
+          message,
+          adapter: config.adapter,
+          attempts: [],
+          signal: options?.signal,
+        };
+        return pipeline(ctx);
       };
-      return pipeline(ctx);
+      return wrapSend ? wrapSend(run) : run();
     },
-  } as Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>>;
+  } as unknown as Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>>;
 }

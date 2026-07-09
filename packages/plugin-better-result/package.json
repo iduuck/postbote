@@ -1,0 +1,41 @@
+{
+  "name": "@postbote/plugin-better-result",
+  "version": "0.0.0",
+  "description": "Wrap postbote.send() to return Result<SendResult, PostboteError> instead of throwing",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "@postbote/core": "workspace:^",
+    "better-result": "^2.9.2"
+  },
+  "devDependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/testing": "workspace:^",
+    "better-result": "^2.9.2",
+    "vitest": "^3"
+  }
+}

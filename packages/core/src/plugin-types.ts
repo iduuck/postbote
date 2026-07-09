@@ -13,7 +13,7 @@ type UnionToIntersection<U> = (
   ? I
   : {};
 
-export type PluginInputExt<Ps extends readonly PostbotePlugin[]> =
+export type PluginInputExt<Ps extends readonly any[]> =
   UnionToIntersection<ExtOf<Ps[number]> extends infer R
     ? R extends Record<string, unknown>
       ? R
@@ -22,7 +22,7 @@ export type PluginInputExt<Ps extends readonly PostbotePlugin[]> =
 
 type SendReturnOf<P> = P extends PluginObject<unknown, infer R> ? R : never;
 
-export type PluginSendReturn<Ps extends readonly PostbotePlugin[]> =
+export type PluginSendReturn<Ps extends readonly any[]> =
   [SendReturnOf<Ps[number]>] extends [never]
     ? Promise<SendResult>
     : SendReturnOf<Ps[number]>;
@@ -33,7 +33,7 @@ export function isPluginObject(
   return typeof plugin === "object" && plugin !== null && "name" in plugin;
 }
 
-export function getMiddlewares(plugins: readonly PostbotePlugin[]): Middleware[] {
+export function getMiddlewares(plugins: readonly any[]): Middleware[] {
   return plugins.map((p) => {
     if (isPluginObject(p)) {
       return p.middleware ?? ((_ctx: SendContext, next: () => Promise<SendResult>) => next());
@@ -44,7 +44,7 @@ export function getMiddlewares(plugins: readonly PostbotePlugin[]): Middleware[]
 
 export async function applyTransforms(
   input: EmailMessageInput,
-  plugins: readonly PostbotePlugin[],
+  plugins: readonly any[],
 ): Promise<EmailMessageInput> {
   let current = input;
   for (const plugin of plugins) {

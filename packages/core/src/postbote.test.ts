@@ -6,6 +6,7 @@ import type {
   Adapter,
   EmailMessage,
   EmailMessageInput,
+  PluginObject,
   SendResult,
 } from "./types.js";
 
@@ -126,5 +127,69 @@ describe("createPostbote", () => {
       | { signal?: AbortSignal }
       | undefined;
     expect(opts?.signal).toBe(ac.signal);
+  });
+
+  describe("wrapSend", () => {
+    it("wraps the send result via wrapSend", async () => {
+      const adapter = fakeAdapter();
+      const wrapper: PluginObject = {
+        name: "wrapper",
+        wrapSend: (run: () => Promise<SendResult>) =>
+          run().then((r) => ({ wrapped: true, ...r })),
+      } as PluginObject;
+      const pb = createPostbote({ adapter, plugins: [wrapper] });
+      const result = await pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "S",
+        text: "B",
+      });
+      expect(result).toHaveProperty("wrapped", true);
+      expect(result).toHaveProperty("messageId");
+    });
+
+    it("wrapSend wraps validation errors", async () => {
+      const adapter = fakeAdapter();
+      const catcher = {
+        name: "catcher",
+        wrapSend: async (run: () => Promise<SendResult>) => {
+          try {
+            return await run();
+          } catch {
+            return { wrapped: "error", provider: "test", messageId: "" };
+          }
+        },
+      } as PluginObject;
+      const pb = createPostbote({
+        adapter,
+        plugins: [catcher],
+      });
+      const result = await pb.send({} as EmailMessageInput);
+      expect(result).toHaveProperty("wrapped", "error");
+    });
+
+    it("two wrapSend plugins throw TypeError at creation", () => {
+      const a = { name: "a", wrapSend: (run: () => Promise<SendResult>) => run() } as PluginObject;
+      const b = { name: "b", wrapSend: (run: () => Promise<SendResult>) => run() } as PluginObject;
+      expect(() =>
+        createPostbote({
+          adapter: fakeAdapter(),
+          plugins: [a, b],
+        }),
+      ).toThrow(TypeError);
+    });
+
+    it("without wrapSend, behavior is unchanged", async () => {
+      const adapter = fakeAdapter();
+      const pb = createPostbote({ adapter });
+      const result = await pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "S",
+        text: "B",
+      });
+      expect(result).toHaveProperty("messageId");
+      expect(result.provider).toBe("test");
+    });
   });
 });

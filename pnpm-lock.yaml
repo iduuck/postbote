@@ -174,6 +174,21 @@ importers:
 
   packages/core: {}
 
+  packages/plugin-better-result:
+    devDependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../testing
+      better-result:
+        specifier: ^2.9.2
+        version: 2.9.2
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
+
   packages/plugin-failover:
     devDependencies:
       '@postbote/core':
@@ -1175,6 +1190,9 @@ packages:
   better-path-resolve@1.0.0:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
+
+  better-result@2.9.2:
+    resolution: {integrity: sha512-WIFoBPCdnTOdk9inkE1ZRvCZ4P0CpSkAiLlchC65N7n9DcjZ3NhqkBOlafzpOVnO8ixyi37kicmSJ3ENhPZl7Q==}
 
   birpc@4.0.0:
     resolution: {integrity: sha512-LShSxJP0KTmd101b6DRyGBj57LZxSDYWKitQNW/mi8GRMvZb078Uf9+pveax1DrVL89vm7mWe+TovdI/UDOuPw==}
@@ -3164,6 +3182,8 @@ snapshots:
   better-path-resolve@1.0.0:
     dependencies:
       is-windows: 1.0.2
+
+  better-result@2.9.2: {}
 
   birpc@4.0.0: {}
 

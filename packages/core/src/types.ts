@@ -61,6 +61,7 @@ export interface PluginObject<TInputExt = {}, TSendReturn = never> {
     input: EmailMessageInput,
   ) => EmailMessageInput | Promise<EmailMessageInput>;
   middleware?: Middleware;
+  wrapSend?: (run: () => Promise<SendResult>) => TSendReturn;
   readonly __inputExt?: TInputExt;
   readonly __sendReturn?: TSendReturn;
 }
