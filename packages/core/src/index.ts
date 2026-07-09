@@ -22,3 +22,5 @@ export type {
   SendOptions,
   SendResult,
 } from "./types.js";
+export { defineAdapter, httpStatusToErrorCode } from "./define-adapter.js";
+export type { AdapterSpec } from "./define-adapter.js";
