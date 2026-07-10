@@ -58,7 +58,7 @@ export interface Adapter {
 export interface PluginObject<TInputExt = {}, TSendReturn = never> {
   name: string;
   transformInput?: (
-    input: EmailMessageInput,
+    input: EmailMessageInput & TInputExt,
   ) => EmailMessageInput | Promise<EmailMessageInput>;
   middleware?: Middleware;
   wrapSend?: (run: () => Promise<SendResult>) => TSendReturn;

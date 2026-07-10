@@ -1,3 +1,4 @@
+import { toPostboteError } from "./errors.js";
 import type { Middleware, SendContext } from "./pipeline.js";
 import type {
   EmailMessageInput,
@@ -6,7 +7,7 @@ import type {
   SendResult,
 } from "./types.js";
 
-type ExtOf<P> = P extends PluginObject<infer E, unknown> ? E : {};
+type ExtOf<P> = P extends { readonly __inputExt?: infer E } ? E : {};
 type UnionToIntersection<U> = (
   U extends unknown
     ? (k: U) => void
@@ -16,11 +17,7 @@ type UnionToIntersection<U> = (
   : {};
 
 export type PluginInputExt<Ps extends readonly any[]> = UnionToIntersection<
-  ExtOf<Ps[number]> extends infer R
-    ? R extends Record<string, unknown>
-      ? R
-      : {}
-    : {}
+  ExtOf<Ps[number]> extends infer R ? (R extends object ? R : {}) : {}
 >;
 
 type SendReturnOf<P> = P extends {
@@ -58,7 +55,11 @@ export async function applyTransforms(
   let current = input;
   for (const plugin of plugins) {
     if (isPluginObject(plugin) && plugin.transformInput) {
-      current = await plugin.transformInput(current);
+      try {
+        current = await plugin.transformInput(current);
+      } catch (err) {
+        throw toPostboteError(err, "postbote");
+      }
     }
   }
   return current;
