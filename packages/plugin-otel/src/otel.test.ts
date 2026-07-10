@@ -3,7 +3,8 @@ import {
   InMemorySpanExporter,
   SimpleSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
-import { createPostbote } from "@postbote/core";
+import { createPostbote, type SendContext } from "@postbote/core";
+import { failover } from "@postbote/plugin-failover";
 import { createTestAdapter } from "@postbote/testing";
 import { describe, expect, it } from "vitest";
 import { otel } from "./index.js";
@@ -102,5 +103,70 @@ describe("otel", () => {
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(1);
     expect(spans[0]?.attributes["postbote.recipient_count"]).toBeUndefined();
+  });
+
+  it("records failed attempts and the final failover provider", async () => {
+    const exporter = new InMemorySpanExporter();
+    const provider = new BasicTracerProvider();
+    provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+    const primary = createTestAdapter({ name: "primary" });
+    const fallback = createTestAdapter({ name: "fallback" });
+    primary.failNext("PROVIDER_UNAVAILABLE");
+
+    const pb = createPostbote({
+      adapter: primary,
+      plugins: [
+        otel({ tracer: provider.getTracer("test") }),
+        failover({ fallbacks: [fallback] }),
+      ],
+    });
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "s",
+      html: "<p>hi</p>",
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const span = exporter.getFinishedSpans()[0];
+    expect(span?.attributes["postbote.provider"]).toBe("fallback");
+    expect(span?.attributes["postbote.attempt_count"]).toBe(2);
+    expect(span?.events).toContainEqual(
+      expect.objectContaining({
+        name: "postbote.attempt",
+        attributes: expect.objectContaining({
+          adapter: "primary",
+          "error.code": "PROVIDER_UNAVAILABLE",
+        }),
+      }),
+    );
+  });
+
+  it("records raw errors as UNKNOWN", async () => {
+    const exporter = new InMemorySpanExporter();
+    const provider = new BasicTracerProvider();
+    provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+    const adapter = createTestAdapter({ name: "test" });
+    const ctx: SendContext = {
+      adapter,
+      attempts: [],
+      message: {
+        from: { email: "f@t.com" },
+        to: [{ email: "t@t.com" }],
+        subject: "s",
+        html: "<p>hi</p>",
+      },
+    };
+
+    await expect(
+      otel({ tracer: provider.getTracer("test") })(ctx, async () => {
+        throw "raw error";
+      }),
+    ).rejects.toBe("raw error");
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(
+      exporter.getFinishedSpans()[0]?.attributes["postbote.error_code"],
+    ).toBe("UNKNOWN");
   });
 });

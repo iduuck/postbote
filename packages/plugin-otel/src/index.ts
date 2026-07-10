@@ -26,6 +26,7 @@ export function otel(options: OtelOptions = {}): Middleware {
         try {
           const result = await next();
 
+          span.setAttribute("postbote.provider", ctx.adapter.name);
           span.setAttribute("postbote.message_id", result.messageId);
           span.setAttribute("postbote.attempt_count", ctx.attempts.length);
 
@@ -51,6 +52,7 @@ export function otel(options: OtelOptions = {}): Middleware {
               : { code: "UNKNOWN", retryable: false, message: String(err) };
 
           span.setAttribute("postbote.attempt_count", ctx.attempts.length);
+          span.setAttribute("postbote.provider", ctx.adapter.name);
           span.setAttribute("postbote.error_code", pbError.code);
 
           for (let i = 0; i < ctx.attempts.length; i++) {
