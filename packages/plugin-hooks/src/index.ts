@@ -1,19 +1,41 @@
-import type { Middleware, PostboteError, SendContext } from "@postbote/core";
-import { PostboteError as PBError, toPostboteError } from "@postbote/core";
+import type {
+  EmailMessage,
+  EmailMessageInput,
+  Middleware,
+  PostboteError,
+  SendContext,
+  SendResult,
+} from "@postbote/core";
+import {
+  isPostboteError,
+  normalizeMessage,
+  PostboteError as PBError,
+  toPostboteError,
+} from "@postbote/core";
 
 export interface HooksOptions {
+  transformMessage?: (
+    message: Readonly<EmailMessage>,
+    ctx: SendContext,
+  ) => EmailMessageInput | Promise<EmailMessageInput>;
   beforeSend?: (
     ctx: SendContext,
     helpers: { cancel: (reason: string) => never },
   ) => void | Promise<void>;
-  afterSend?: (ctx: SendContext, result: unknown) => void | Promise<void>;
+  afterSend?: (ctx: SendContext, result: SendResult) => void | Promise<void>;
   onError?: (ctx: SendContext, error: PostboteError) => void | Promise<void>;
 }
 
 export function hooks(options: HooksOptions): Middleware {
   return async (ctx: SendContext, next) => {
-    if (options.beforeSend) {
-      try {
+    try {
+      if (options.transformMessage) {
+        ctx.message = normalizeMessage(
+          await options.transformMessage(ctx.message, ctx),
+        );
+      }
+
+      if (options.beforeSend) {
         await options.beforeSend(ctx, {
           cancel(reason: string): never {
             throw new PBError(reason, {
@@ -22,10 +44,10 @@ export function hooks(options: HooksOptions): Middleware {
             });
           },
         });
-      } catch (err) {
-        if (err instanceof PBError) throw err;
-        throw toPostboteError(err, "plugin-hooks");
       }
+    } catch (err) {
+      if (isPostboteError(err)) throw err;
+      throw toPostboteError(err, "plugin-hooks");
     }
 
     try {
@@ -39,8 +61,9 @@ export function hooks(options: HooksOptions): Middleware {
 
       return result;
     } catch (err) {
-      const error =
-        err instanceof PBError ? err : toPostboteError(err, "plugin-hooks");
+      const error = isPostboteError(err)
+        ? err
+        : toPostboteError(err, "plugin-hooks");
 
       try {
         await options.onError?.(ctx, error);
