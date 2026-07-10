@@ -1,3 +1,4 @@
+import { assertType, describe, expectTypeOf, it } from "vitest";
 import {
   createPostbote,
   defineAdapter,
@@ -5,8 +6,7 @@ import {
   type Middleware,
   type PluginObject,
   type SendResult,
-} from "@postbote/core";
-import { assertType, describe, expectTypeOf, it } from "vitest";
+} from "./index.js";
 
 const adapter = defineAdapter({
   name: "test",
