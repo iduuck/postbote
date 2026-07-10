@@ -1,6 +1,6 @@
 {
   "name": "@postbote/plugin-otel",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "OpenTelemetry instrumentation for Postbote — spans and events per send",
   "license": "MIT",
   "repository": {

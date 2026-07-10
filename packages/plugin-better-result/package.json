@@ -1,6 +1,6 @@
 {
   "name": "@postbote/plugin-better-result",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Wrap postbote.send() to return Result<SendResult, PostboteError> instead of throwing",
   "license": "MIT",
   "repository": {

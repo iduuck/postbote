@@ -1,6 +1,6 @@
 {
   "name": "@postbote/testing",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Consumer-Test-Kit: Test-Adapter, Inbox-Assertions, Vitest/Jest-Matcher",
   "license": "MIT",
   "repository": {
