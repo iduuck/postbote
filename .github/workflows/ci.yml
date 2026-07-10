@@ -68,6 +68,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package-dist
+          path: packages
       - name: Smoke test (ESM import + CJS require)
         run: node scripts/smoke.mjs
 
