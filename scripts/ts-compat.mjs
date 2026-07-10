@@ -72,6 +72,85 @@ try {
     const ns = name.replace(/^@postbote\//, "").replace(/[-/]/g, "_");
     source += `import * as ${ns} from ${JSON.stringify(name)};\n`;
   }
+  source += `
+import {
+  createPostbote,
+  defineAdapter,
+  type Middleware,
+  type PostboteError,
+  type SendResult,
+} from "@postbote/core";
+import { betterResult } from "@postbote/plugin-better-result";
+import { reactEmail } from "@postbote/plugin-react-email";
+import type { Result } from "better-result";
+import * as React from "react";
+
+type Assert<T extends true> = T;
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends
+  (<T>() => T extends B ? 1 : 2)
+    ? true
+    : false;
+
+const adapter = defineAdapter({
+  name: "type-test",
+  send: async () => ({ messageId: "test-id" }),
+});
+const message = {
+  from: "sender@example.com",
+  to: "recipient@example.com",
+  subject: "Type test",
+  html: "<p>Hello</p>",
+};
+
+const plain = createPostbote({ adapter });
+type PlainReturn = Assert<Equal<ReturnType<typeof plain.send>, Promise<SendResult>>>;
+// @ts-expect-error body requires reactEmail()
+plain.send({ ...message, body: React.createElement("h1") });
+
+const react = createPostbote({ adapter, plugins: [reactEmail()] });
+react.send({ ...message, body: React.createElement("h1") });
+// @ts-expect-error body must be a ReactElement
+react.send({ ...message, body: "<h1>Hello</h1>" });
+
+const result = createPostbote({ adapter, plugins: [betterResult()] });
+type ResultReturn = Assert<
+  Equal<
+    ReturnType<typeof result.send>,
+    Promise<Result<SendResult, PostboteError>>
+  >
+>;
+
+const reactThenResult = createPostbote({
+  adapter,
+  plugins: [reactEmail(), betterResult()],
+});
+const resultThenReact = createPostbote({
+  adapter,
+  plugins: [betterResult(), reactEmail()],
+});
+reactThenResult.send({ ...message, body: React.createElement("h1") });
+resultThenReact.send({ ...message, body: React.createElement("h1") });
+type ReactThenResult = Assert<
+  Equal<
+    ReturnType<typeof reactThenResult.send>,
+    Promise<Result<SendResult, PostboteError>>
+  >
+>;
+type ResultThenReact = Assert<
+  Equal<
+    ReturnType<typeof resultThenReact.send>,
+    Promise<Result<SendResult, PostboteError>>
+  >
+>;
+
+const middleware: Middleware = (_ctx, next) => next();
+const widenedPlugins: Middleware[] = [middleware];
+const widened = createPostbote({ adapter, plugins: widenedPlugins });
+type WidenedReturn = Assert<
+  Equal<ReturnType<typeof widened.send>, Promise<SendResult>>
+>;
+`;
   writeFileSync(join(projDir, "main.ts"), source);
 
   // 4. Test matrix: TS version × moduleResolution

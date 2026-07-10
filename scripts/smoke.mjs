@@ -44,7 +44,7 @@ try {
     const [tgz] = readdirSync(distDir).filter(
       (f) => f.endsWith(".tgz") && f.startsWith(safeName),
     );
-    if (!tgz) throw new Error("No tarball found for " + name);
+    if (!tgz) throw new Error(`No tarball found for ${name}`);
     tarballs.push({ name, tgz: join(distDir, tgz) });
   }
 
@@ -53,7 +53,7 @@ try {
     join(projDir, "package.json"),
     JSON.stringify({ name: "postbote-smoke", private: true, type: "module" }),
   );
-  execSync("npm install " + tarballs.map((t) => t.tgz).join(" "), {
+  execSync(`npm install ${tarballs.map((t) => t.tgz).join(" ")}`, {
     cwd: projDir,
     stdio: "pipe",
     timeout: 120_000,
@@ -63,7 +63,7 @@ try {
   console.log("--- ESM import ---\n");
   for (const { name } of tarballs) {
     if (VITEST_PACKAGES.has(name)) {
-      console.log("  ~ " + name + " (requires vitest context, skipping)");
+      console.log(`  ~ ${name} (requires vitest context, skipping)`);
       continue;
     }
     const ns = name.replace(/^@postbote\//, "").replace(/[-/]/g, "_");
@@ -75,13 +75,13 @@ try {
         stdio: "pipe",
         timeout: 15_000,
       });
-      console.log("  ✓ " + name);
+      console.log(`  ✓ ${name}`);
     } catch (e) {
       const stderr = (e.stderr || "").toString();
-      console.error("  ✗ " + name);
+      console.error(`  ✗ ${name}`);
       if (stderr)
         console.error(
-          "    " + stderr.trim().split("\n").slice(-3).join("\n    "),
+          `    ${stderr.trim().split("\n").slice(-3).join("\n    ")}`,
         );
       exitCode = 1;
     }
@@ -93,7 +93,7 @@ try {
 
   for (const { name } of tarballs) {
     if (VITEST_PACKAGES.has(name)) {
-      console.log("  ~ " + name + " (requires vitest context, skipping)");
+      console.log(`  ~ ${name} (requires vitest context, skipping)`);
       continue;
     }
     const ns = name.replace(/^@postbote\//, "").replace(/[-/]/g, "_");
@@ -115,30 +115,22 @@ try {
         });
       } else {
         console.log(
-          "  ~ " +
-            name +
-            " (require(esm) unsupported on Node " +
-            nodeMajor +
-            ")",
+          `  ~ ${name} (require(esm) unsupported on Node ${nodeMajor})`,
         );
         continue;
       }
-      console.log("  ✓ " + name);
+      console.log(`  ✓ ${name}`);
     } catch (e) {
       const stderr = (e.stderr || "").toString();
       if (stderr.includes("ERR_REQUIRE_ESM")) {
         console.log(
-          "  ~ " +
-            name +
-            " (require(esm) unsupported on Node " +
-            nodeMajor +
-            ")",
+          `  ~ ${name} (require(esm) unsupported on Node ${nodeMajor})`,
         );
       } else {
-        console.error("  ✗ " + name);
+        console.error(`  ✗ ${name}`);
         if (stderr)
           console.error(
-            "    " + stderr.trim().split("\n").slice(-3).join("\n    "),
+            `    ${stderr.trim().split("\n").slice(-3).join("\n    ")}`,
           );
         exitCode = 1;
       }
