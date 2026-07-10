@@ -1,0 +1,20 @@
+{
+  "name": "@postbote/example-better-result",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/plugin-better-result": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^",
+    "@postbote/testing": "workspace:^",
+    "better-result": "^2.9.2"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^3"
+  }
+}

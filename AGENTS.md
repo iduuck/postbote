@@ -16,8 +16,13 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |
 | `packages/adapter-sendgrid-http` | fetch-based SendGrid adapter, 0 SDK deps, edge-compatible |
 | `packages/plugin-failover` | Middleware-plugin — automatisches Failover auf Fallback-Adapter bei Provider-Ausfällen (`failover()`, `FailoverExhaustedError`) |
+| `packages/plugin-hooks` | Lifecycle hooks, validated message payload transforms, and policy cancellation via `CANCELLED` |
+| `packages/plugin-logger` | Structured, JSON-safe send and attempt lifecycle events |
+| `packages/plugin-otel` | OpenTelemetry client spans and attempt events per logical send |
+| `packages/plugin-react-email` | Input-transform plugin rendering `ReactElement` bodies to HTML/text |
+| `packages/plugin-better-result` | `wrapSend` plugin returning `Result<SendResult, PostboteError>` |
 | `packages/testing` | Consumer test kit — `createTestAdapter`, `TestInbox`, error simulation, Vitest/Jest matchers (`./matchers` subpath) |
-| `examples/` | (empty — planned) |
+| `examples/` | Executable observability, React Email, and better-result examples |
 | `plans/` | Detailed plans & ADRs — **gitignored**, read locally! (especially before starting any phase) |
 
 ## Commands
@@ -52,12 +57,16 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 - **Adapter structure**: `adapter.ts`, `map.ts` (+ snapshot tests), `errors.ts` (mapping table), `contract.test.ts` (msw)
 - Each adapter exports `resendHttp(options)` / `resend(options)` — factory returning `Adapter`
 - `contract.test.ts` uses `runAdapterContractTests` from `@postbote/adapter-contract` + msw server
+- Adapter factories should use core `defineAdapter`; provider code returns only `messageId`/`raw`
+- Input-transform plugins return `PluginObject<TInputExt>` and remove extension-only fields before normalization
+- At most one plugin may define `wrapSend`; it wraps transforms, normalization, and the middleware pipeline
 - No `console.*` in library code, no telemetry
 - Adapters always testable via `interceptor` (msw or injected clients)
 
 ## Common pitfalls
 
 - **plugins array: outer → inner** (first element wraps all others).
+- Preserve plugin tuples inline or with `as const`; widening to `Middleware[]` intentionally drops type extensions.
 - `next()` may be called multiple times (failover) — middleware must handle that.
 - **tsdown** builds ESM + d.ts; `tsc` is **only** typecheck (`noEmit`).
 - `plans/` is gitignored — on a fresh checkout **ALWAYS read plans/** before writing code.

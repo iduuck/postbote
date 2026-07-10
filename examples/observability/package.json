@@ -1,0 +1,21 @@
+{
+  "name": "@postbote/example-observability",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^",
+    "@postbote/plugin-hooks": "workspace:^",
+    "@postbote/plugin-logger": "workspace:^",
+    "@postbote/plugin-otel": "workspace:^",
+    "@postbote/testing": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^3"
+  }
+}
