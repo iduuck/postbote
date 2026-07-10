@@ -3,12 +3,15 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "inputs": ["src/**"],
       "outputs": ["dist/**"]
     },
     "typecheck": {
+      "inputs": ["src/**"],
       "dependsOn": ["^build"]
     },
     "test": {
+      "inputs": ["src/**"],
       "dependsOn": ["build"]
     },
     "dev": {
