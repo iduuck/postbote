@@ -45,6 +45,31 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
 
+  examples/better-result:
+    dependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@postbote/plugin-better-result':
+        specifier: workspace:^
+        version: link:../../packages/plugin-better-result
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../../packages/plugin-failover
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../../packages/testing
+      better-result:
+        specifier: ^2.9.2
+        version: 2.9.2
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
+
   examples/failover:
     dependencies:
       '@postbote/core':
@@ -57,6 +82,62 @@ importers:
       '@postbote/testing':
         specifier: workspace:^
         version: link:../../packages/testing
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
+
+  examples/observability:
+    dependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../../packages/plugin-failover
+      '@postbote/plugin-hooks':
+        specifier: workspace:^
+        version: link:../../packages/plugin-hooks
+      '@postbote/plugin-logger':
+        specifier: workspace:^
+        version: link:../../packages/plugin-logger
+      '@postbote/plugin-otel':
+        specifier: workspace:^
+        version: link:../../packages/plugin-otel
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../../packages/testing
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
+
+  examples/react-email:
+    dependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@postbote/plugin-react-email':
+        specifier: workspace:^
+        version: link:../../packages/plugin-react-email
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../../packages/testing
+      '@react-email/render':
+        specifier: ^1
+        version: 1.1.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: ^19
+        version: 19.2.7
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.17
+      typescript:
+        specifier: ^5
+        version: 5.9.3
       vitest:
         specifier: ^3
         version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
@@ -179,12 +260,27 @@ importers:
       '@postbote/core':
         specifier: workspace:^
         version: link:../core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../plugin-failover
+      '@postbote/plugin-react-email':
+        specifier: workspace:^
+        version: link:../plugin-react-email
       '@postbote/testing':
         specifier: workspace:^
         version: link:../testing
+      '@react-email/render':
+        specifier: ^1
+        version: 1.1.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@types/react':
+        specifier: ^19
+        version: 19.2.17
       better-result:
         specifier: ^2.9.2
         version: 2.9.2
+      react:
+        specifier: ^19
+        version: 19.2.7
       vitest:
         specifier: ^3
         version: 3.2.7(@types/node@26.1.0)(msw@2.14.6(@types/node@26.1.0)(typescript@5.9.3))
@@ -206,6 +302,9 @@ importers:
       '@postbote/core':
         specifier: workspace:^
         version: link:../core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../plugin-failover
       '@postbote/testing':
         specifier: workspace:^
         version: link:../testing
@@ -239,6 +338,9 @@ importers:
       '@postbote/core':
         specifier: workspace:^
         version: link:../core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../plugin-failover
       '@postbote/testing':
         specifier: workspace:^
         version: link:../testing
@@ -251,6 +353,9 @@ importers:
       '@postbote/core':
         specifier: workspace:^
         version: link:../core
+      '@postbote/plugin-failover':
+        specifier: workspace:^
+        version: link:../plugin-failover
       '@postbote/testing':
         specifier: workspace:^
         version: link:../testing

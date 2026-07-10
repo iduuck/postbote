@@ -21,7 +21,8 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
   },
   "publishConfig": {
     "access": "public",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@postbote/core": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^",
     "@postbote/testing": "workspace:^",
     "vitest": "^3"
   }

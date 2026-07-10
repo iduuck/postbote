@@ -34,8 +34,13 @@
   },
   "devDependencies": {
     "@postbote/core": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^",
+    "@postbote/plugin-react-email": "workspace:^",
     "@postbote/testing": "workspace:^",
+    "@react-email/render": "^1",
+    "@types/react": "^19",
     "better-result": "^2.9.2",
+    "react": "^19",
     "vitest": "^3"
   }
 }

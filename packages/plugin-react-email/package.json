@@ -31,10 +31,12 @@
   "peerDependencies": {
     "@postbote/core": "workspace:^",
     "@react-email/render": "^1",
+    "@types/react": ">=18",
     "react": ">=18"
   },
   "devDependencies": {
     "@postbote/core": "workspace:^",
+    "@postbote/plugin-failover": "workspace:^",
     "@postbote/testing": "workspace:^",
     "@react-email/render": "^1",
     "@types/react": "^19",
