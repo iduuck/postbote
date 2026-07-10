@@ -1,4 +1,5 @@
 import { createPostbote, PostboteError } from "@postbote/core";
+import { FailoverExhaustedError, failover } from "@postbote/plugin-failover";
 import { createTestAdapter, type TestAdapter } from "@postbote/testing";
 import { Result } from "better-result";
 import { afterEach, describe, expect, it } from "vitest";
@@ -49,6 +50,7 @@ describe("betterResult plugin", () => {
     expect(Result.isError(result)).toBe(true);
     if (Result.isError(result)) {
       expect(result.error).toBeInstanceOf(PostboteError);
+      expect(result.error.code).toBe("INVALID_MESSAGE");
     }
   });
 
@@ -80,5 +82,32 @@ describe("betterResult plugin", () => {
       err: (e) => `error: ${e.code}`,
     });
     expect(msg).toBe("error: RATE_LIMITED");
+  });
+
+  it("returns a FailoverExhaustedError after all adapters fail", async () => {
+    const primary = createTestAdapter({ name: "primary" });
+    const fallback = createTestAdapter({ name: "fallback" });
+    primary.failAlways("PROVIDER_UNAVAILABLE");
+    fallback.failAlways("PROVIDER_UNAVAILABLE");
+    const pb = createPostbote({
+      adapter: primary,
+      plugins: [betterResult(), failover({ fallbacks: [fallback] })],
+    });
+
+    const result = await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "S",
+      html: "<p>hi</p>",
+    });
+
+    expect(Result.isError(result)).toBe(true);
+    if (Result.isError(result)) {
+      expect(result.error).toBeInstanceOf(FailoverExhaustedError);
+      expect(result.error).toHaveProperty("attempts", [
+        expect.objectContaining({ adapter: "primary" }),
+        expect.objectContaining({ adapter: "fallback" }),
+      ]);
+    }
   });
 });
