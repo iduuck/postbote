@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Consumer-Test-Kit: Test-Adapter, Inbox-Assertions, Vitest/Jest-Matcher",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iduuck/postbote.git",
+    "directory": "packages/testing"
+  },
+  "homepage": "https://github.com/iduuck/postbote#readme",
+  "bugs": "https://github.com/iduuck/postbote/issues",
   "type": "module",
   "sideEffects": [
     "./dist/register.js"

@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Wrap postbote.send() to return Result<SendResult, PostboteError> instead of throwing",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iduuck/postbote.git",
+    "directory": "packages/plugin-better-result"
+  },
+  "homepage": "https://github.com/iduuck/postbote#readme",
+  "bugs": "https://github.com/iduuck/postbote/issues",
   "type": "module",
   "sideEffects": false,
   "engines": {

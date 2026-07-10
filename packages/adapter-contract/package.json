@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Interne Contract-Testsuite für Postbote-Adapter",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iduuck/postbote.git",
+    "directory": "packages/adapter-contract"
+  },
+  "homepage": "https://github.com/iduuck/postbote#readme",
+  "bugs": "https://github.com/iduuck/postbote/issues",
   "type": "module",
   "sideEffects": false,
   "engines": {
