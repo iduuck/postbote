@@ -4,5 +4,6 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
+  "fixed": [["@postbote/*"]],
   "ignore": []
 }
