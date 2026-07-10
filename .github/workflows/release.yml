@@ -30,7 +30,7 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - name: Update npm for trusted publishing
-        run: npm install --global npm@latest
+        run: npm install --global npm@11
       - run: pnpm install --frozen-lockfile
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
