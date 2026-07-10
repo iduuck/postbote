@@ -68,6 +68,43 @@ const result = await postbote.send({
 
 Use the [contract test suite](../adapter-contract/README.md) to ensure your adapter follows the same behavioural contract as all official adapters — every adapter must pass it.
 
+`defineAdapter` is the recommended path. It validates the provider name, handles pre-aborted signals, adds the provider to results, rejects missing message IDs, and normalizes unknown errors.
+
+```ts
+import {
+  defineAdapter,
+  httpStatusToErrorCode,
+  PostboteError,
+} from "@postbote/core";
+
+export const myProvider = (apiKey: string) =>
+  defineAdapter({
+    name: "my-provider",
+    mapUnknownError: () => "PROVIDER_UNAVAILABLE",
+    async send(message, { signal }) {
+      const response = await fetch("https://api.example.com/send", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify(message),
+        signal,
+      });
+      const body = await response.json().catch(() => undefined);
+
+      if (!response.ok) {
+        throw new PostboteError(response.statusText, {
+          code: httpStatusToErrorCode(response.status),
+          provider: "my-provider",
+          cause: { status: response.status, body },
+        });
+      }
+
+      return { messageId: body.id, raw: body };
+    },
+  });
+```
+
+You can also implement the structural `Adapter` interface directly when a custom wrapper is not appropriate. Both approaches must pass the contract suite.
+
 ## License
 
 MIT — see [LICENSE.md](LICENSE.md).
