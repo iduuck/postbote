@@ -33,7 +33,7 @@ export function sendgrid(options: SendGridOptions) {
     client = mailService;
   }
 
-  const spec: AdapterSpec = {
+  const spec: AdapterSpec<"sendgrid"> = {
     name: "sendgrid",
     async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {
       const payload = toSendGridSdkPayload(message);

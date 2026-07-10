@@ -13,11 +13,16 @@ export {
   parseAddress,
 } from "./normalize.js";
 export type { Middleware, Next, SendAttempt, SendContext } from "./pipeline.js";
-export type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";
+export type {
+  PluginInputExt,
+  PluginProviderNames,
+  PluginSendReturn,
+} from "./plugin-types.js";
 export type { Postbote } from "./postbote.js";
 export { createPostbote } from "./postbote.js";
 export type {
   Adapter,
+  AdapterName,
   Address,
   Attachment,
   EmailMessage,

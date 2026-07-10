@@ -1,13 +1,16 @@
 import type {
   Adapter,
+  AdapterName,
   Middleware,
   SendAttempt,
   SendContext,
 } from "@postbote/core";
 import { PostboteError, toPostboteError } from "@postbote/core";
 
-export interface FailoverOptions {
-  fallbacks: Adapter[];
+export interface FailoverOptions<
+  TFallbacks extends readonly Adapter[] = readonly Adapter[],
+> {
+  fallbacks: TFallbacks;
   shouldFailover?: (error: PostboteError, ctx: SendContext) => boolean;
   onFailover?: (info: {
     from: string;
@@ -60,7 +63,11 @@ function safeCall(
   }
 }
 
-export function failover(options: FailoverOptions): Middleware {
+export function failover<const TFallbacks extends readonly Adapter[]>(
+  options: FailoverOptions<TFallbacks>,
+): Middleware & {
+  readonly __providerNames?: AdapterName<TFallbacks[number]>;
+} {
   const shouldFailover =
     options.shouldFailover ?? ((e: PostboteError) => e.retryable);
 

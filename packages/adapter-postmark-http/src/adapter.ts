@@ -17,7 +17,9 @@ const DEFAULT_BASE_URL = "https://api.postmarkapp.com";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MESSAGE_STREAM = "outbound";
 
-export function postmarkHttp(options: PostmarkHttpOptions): Adapter {
+export function postmarkHttp(
+  options: PostmarkHttpOptions,
+): Adapter<"postmark-http"> {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const messageStream = options.messageStream ?? DEFAULT_MESSAGE_STREAM;

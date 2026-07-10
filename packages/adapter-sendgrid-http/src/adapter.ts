@@ -15,7 +15,9 @@ export interface SendGridHttpOptions {
 const DEFAULT_BASE_URL = "https://api.sendgrid.com";
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-export function sendgridHttp(options: SendGridHttpOptions): Adapter {
+export function sendgridHttp(
+  options: SendGridHttpOptions,
+): Adapter<"sendgrid-http"> {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchFn = options.fetch ?? globalThis.fetch;

@@ -1,7 +1,11 @@
 import { normalizeMessage } from "./normalize.js";
 import type { SendContext } from "./pipeline.js";
 import { compose } from "./pipeline.js";
-import type { PluginInputExt, PluginSendReturn } from "./plugin-types.js";
+import type {
+  PluginInputExt,
+  PluginProviderNames,
+  PluginSendReturn,
+} from "./plugin-types.js";
 import {
   applyTransforms,
   getMiddlewares,
@@ -9,6 +13,7 @@ import {
 } from "./plugin-types.js";
 import type {
   Adapter,
+  AdapterName,
   EmailMessageInput,
   PluginObject,
   PostbotePlugin,
@@ -16,9 +21,13 @@ import type {
   SendResult,
 } from "./types.js";
 
-export interface Postbote<TExt = {}, TSend = Promise<SendResult>> {
+export interface Postbote<
+  TExt = {},
+  TSend = Promise<SendResult>,
+  TAdapter extends Adapter = Adapter,
+> {
   send(input: EmailMessageInput & TExt, options?: SendOptions): TSend;
-  readonly adapter: Adapter;
+  readonly adapter: TAdapter;
 }
 
 function findWrapSend(
@@ -41,11 +50,16 @@ function findWrapSend(
 }
 
 export function createPostbote<
+  const TAdapter extends Adapter,
   const Ps extends readonly PostbotePlugin<any, any>[] = [],
 >(config: {
-  adapter: Adapter;
+  adapter: TAdapter;
   plugins?: Ps;
-}): Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>> {
+}): Postbote<
+  PluginInputExt<Ps>,
+  PluginSendReturn<Ps, AdapterName<TAdapter> | PluginProviderNames<Ps>>,
+  TAdapter
+> {
   const plugins = config.plugins ?? [];
   const middlewares = getMiddlewares(plugins);
   const pipeline = compose(middlewares);
@@ -70,5 +84,9 @@ export function createPostbote<
       };
       return wrapSend ? wrapSend(run) : run();
     },
-  } as unknown as Postbote<PluginInputExt<Ps>, PluginSendReturn<Ps>>;
+  } as unknown as Postbote<
+    PluginInputExt<Ps>,
+    PluginSendReturn<Ps, AdapterName<TAdapter> | PluginProviderNames<Ps>>,
+    TAdapter
+  >;
 }

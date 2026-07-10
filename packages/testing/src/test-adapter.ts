@@ -13,8 +13,8 @@ export interface SendCall {
   error?: PostboteError;
 }
 
-export interface TestAdapterOptions {
-  name?: string;
+export interface TestAdapterOptions<TName extends string = string> {
+  name?: TName;
   latencyMs?: number;
 }
 
@@ -27,7 +27,8 @@ type FailIfPredicate = (
   msg: EmailMessage,
 ) => PostboteError | ErrorCode | undefined;
 
-export interface TestAdapter extends Adapter {
+export interface TestAdapter<TName extends string = string>
+  extends Adapter<TName> {
   readonly inbox: TestInbox;
   readonly calls: readonly SendCall[];
 
@@ -55,6 +56,12 @@ function toPostboteError(
   });
 }
 
+export function createTestAdapter<const TName extends string>(
+  options: TestAdapterOptions<TName> & { name: TName },
+): TestAdapter<TName>;
+export function createTestAdapter(
+  options?: Omit<TestAdapterOptions, "name">,
+): TestAdapter<"test">;
 export function createTestAdapter(options?: TestAdapterOptions): TestAdapter {
   const name = options?.name ?? "test";
   const latencyMs = options?.latencyMs ?? 0;

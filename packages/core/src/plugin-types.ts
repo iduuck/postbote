@@ -26,10 +26,22 @@ type SendReturnOf<P> = P extends {
   ? R
   : never;
 
-export type PluginSendReturn<Ps extends readonly any[]> = [
-  SendReturnOf<Ps[number]>,
-] extends [never]
-  ? Promise<SendResult>
+export type PluginProviderNames<Ps extends readonly any[]> =
+  Ps[number] extends infer P
+    ? P extends unknown
+      ? "__providerNames" extends keyof P
+        ? P extends { readonly __providerNames?: infer TNames }
+          ? Extract<TNames, string>
+          : never
+        : never
+      : never
+    : never;
+
+export type PluginSendReturn<
+  Ps extends readonly any[],
+  TProvider extends string = string,
+> = [SendReturnOf<Ps[number]>] extends [never]
+  ? Promise<SendResult<TProvider>>
   : SendReturnOf<Ps[number]>;
 
 export function isPluginObject(plugin: PostbotePlugin): plugin is PluginObject {

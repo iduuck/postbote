@@ -17,8 +17,8 @@ export function httpStatusToErrorCode(status: number): ErrorCode {
   return "UNKNOWN";
 }
 
-export interface AdapterSpec {
-  name: string;
+export interface AdapterSpec<TName extends string = string> {
+  name: TName;
   send(
     message: EmailMessage,
     ctx: { signal?: AbortSignal },
@@ -26,7 +26,9 @@ export interface AdapterSpec {
   mapUnknownError?: (err: unknown) => PostboteError | ErrorCode;
 }
 
-export function defineAdapter(spec: AdapterSpec): Adapter {
+export function defineAdapter<const TName extends string>(
+  spec: AdapterSpec<TName>,
+): Adapter<TName> {
   if (!NAME_RE.test(spec.name)) {
     throw new TypeError(
       `Invalid adapter name "${spec.name}": must match [a-z0-9-]+`,
@@ -42,7 +44,7 @@ export function defineAdapter(spec: AdapterSpec): Adapter {
     async send(
       message: EmailMessage,
       options?: { signal?: AbortSignal },
-    ): Promise<SendResult> {
+    ): Promise<SendResult<TName>> {
       if (options?.signal?.aborted) {
         const err = new PostboteError("Send aborted", {
           code: "ABORTED",

@@ -29,7 +29,7 @@ describe("betterResult types", () => {
   it("without plugin, send returns Promise<SendResult>", async () => {
     const pb = createPostbote({ adapter });
     expectTypeOf<ReturnType<typeof pb.send>>().toEqualTypeOf<
-      Promise<SendResult>
+      Promise<SendResult<"t">>
     >();
   });
 

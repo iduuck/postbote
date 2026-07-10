@@ -29,7 +29,7 @@ export function resend(options: ResendOptions) {
   const client = options.client ?? new Resend(options.apiKey);
   const send: SendFn = client.emails.send.bind(client.emails) as SendFn;
 
-  const spec: AdapterSpec = {
+  const spec: AdapterSpec<"resend"> = {
     name: "resend",
     mapUnknownError: () => "PROVIDER_UNAVAILABLE" as const,
     async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {

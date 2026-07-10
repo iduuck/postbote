@@ -38,13 +38,13 @@ describe("wrapSend types", () => {
     expectTypeOf<ReturnType<typeof pb.send>>().toEqualTypeOf<Wrapped>();
   });
 
-  it("Middleware[] degrades to the default return type", () => {
+  it("Middleware[] preserves the primary provider type", () => {
     const middleware: Middleware = (_ctx, next) => next();
     const plugins: Middleware[] = [middleware];
     const pb = createPostbote({ adapter, plugins });
 
     expectTypeOf<ReturnType<typeof pb.send>>().toEqualTypeOf<
-      Promise<SendResult>
+      Promise<SendResult<"test">>
     >();
   });
 

@@ -44,16 +44,22 @@ export interface SendOptions {
   signal?: AbortSignal;
 }
 
-export interface SendResult {
+export interface SendResult<TProvider extends string = string> {
   messageId: string;
-  provider: string;
+  provider: TProvider;
   raw?: unknown;
 }
 
-export interface Adapter {
-  readonly name: string;
-  send(message: EmailMessage, options?: SendOptions): Promise<SendResult>;
+export interface Adapter<TName extends string = string> {
+  readonly name: TName;
+  send(
+    message: EmailMessage,
+    options?: SendOptions,
+  ): Promise<SendResult<TName>>;
 }
+
+export type AdapterName<TAdapter extends Adapter = Adapter> =
+  TAdapter extends Adapter<infer TName> ? TName : string;
 
 export interface PluginObject<TInputExt = {}, TSendReturn = never> {
   name: string;

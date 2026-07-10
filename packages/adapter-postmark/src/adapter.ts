@@ -25,7 +25,7 @@ export function postmark(options: PostmarkOptions) {
 
   const sendEmail = sdkClient.sendEmail.bind(sdkClient);
 
-  const spec: AdapterSpec = {
+  const spec: AdapterSpec<"postmark"> = {
     name: "postmark",
     async send(message: EmailMessage, ctx: { signal?: AbortSignal }) {
       const payload = toPostmarkSdkPayload(message, options.messageStream);

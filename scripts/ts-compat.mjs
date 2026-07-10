@@ -104,7 +104,9 @@ const message = {
 };
 
 const plain = createPostbote({ adapter });
-type PlainReturn = Assert<Equal<ReturnType<typeof plain.send>, Promise<SendResult>>>;
+type PlainReturn = Assert<
+  Equal<ReturnType<typeof plain.send>, Promise<SendResult<"type-test">>>
+>;
 // @ts-expect-error body requires reactEmail()
 plain.send({ ...message, body: React.createElement("h1") });
 
@@ -148,7 +150,7 @@ const middleware: Middleware = (_ctx, next) => next();
 const widenedPlugins: Middleware[] = [middleware];
 const widened = createPostbote({ adapter, plugins: widenedPlugins });
 type WidenedReturn = Assert<
-  Equal<ReturnType<typeof widened.send>, Promise<SendResult>>
+  Equal<ReturnType<typeof widened.send>, Promise<SendResult<"type-test">>>
 >;
 `;
   writeFileSync(join(projDir, "main.ts"), source);

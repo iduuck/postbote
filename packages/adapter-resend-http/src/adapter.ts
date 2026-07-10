@@ -15,7 +15,7 @@ export interface ResendHttpOptions {
 const DEFAULT_BASE_URL = "https://api.resend.com";
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-export function resendHttp(options: ResendHttpOptions): Adapter {
+export function resendHttp(options: ResendHttpOptions): Adapter<"resend-http"> {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchFn = options.fetch ?? globalThis.fetch;
