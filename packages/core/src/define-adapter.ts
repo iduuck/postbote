@@ -1,4 +1,9 @@
-import { type ErrorCode, PostboteError, toPostboteError } from "./errors.js";
+import {
+  type ErrorCode,
+  isPostboteError,
+  PostboteError,
+  toPostboteError,
+} from "./errors.js";
 import type { Adapter, EmailMessage, SendResult } from "./types.js";
 
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -60,11 +65,11 @@ export function defineAdapter(spec: AdapterSpec): Adapter {
 
         return { messageId: result.messageId, provider: name, raw: result.raw };
       } catch (err) {
-        if (err instanceof PostboteError) throw err;
+        if (isPostboteError(err)) throw err;
 
         if (spec.mapUnknownError) {
           const mapped = spec.mapUnknownError(err);
-          if (mapped instanceof PostboteError) throw mapped;
+          if (isPostboteError(mapped)) throw mapped;
           throw new PostboteError(String(err), {
             code: mapped,
             provider: name,
@@ -72,15 +77,7 @@ export function defineAdapter(spec: AdapterSpec): Adapter {
           });
         }
 
-        const normalized = toPostboteError(err, name);
-        if (normalized.code === "UNKNOWN" && normalized.provider === name) {
-          throw new PostboteError(normalized.message, {
-            code: "UNKNOWN",
-            provider: name,
-            cause: err,
-          });
-        }
-        throw normalized;
+        throw toPostboteError(err, name);
       }
     },
   };
