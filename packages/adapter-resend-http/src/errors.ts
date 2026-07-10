@@ -1,10 +1,8 @@
-import type { ErrorCode } from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { httpStatusToErrorCode, PostboteError } from "@postbote/core";
 
 const PROVIDER = "resend-http";
 
 interface ResendErrorBody {
-  name?: string;
   message?: string;
   statusCode?: number;
 }
@@ -16,21 +14,7 @@ export function toPostboteErrorFromResponse(
   const status = response.status;
   const errorBody = body as ResendErrorBody | undefined;
   const message = errorBody?.message ?? response.statusText;
-  const name = errorBody?.name;
-
-  let code: ErrorCode;
-
-  if (status === 401 || status === 403) {
-    code = "AUTH";
-  } else if (status === 422 && name === "validation_error") {
-    code = "INVALID_MESSAGE";
-  } else if (status === 429) {
-    code = "RATE_LIMITED";
-  } else if (status >= 500) {
-    code = "PROVIDER_UNAVAILABLE";
-  } else {
-    code = "UNKNOWN";
-  }
+  const code = httpStatusToErrorCode(status);
 
   return new PostboteError(message, {
     code,

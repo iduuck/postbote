@@ -1,5 +1,8 @@
-import type { ErrorCode } from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import {
+  type ErrorCode,
+  httpStatusToErrorCode,
+  PostboteError,
+} from "@postbote/core";
 
 const PROVIDER = "sendgrid-http";
 
@@ -18,16 +21,10 @@ export function toPostboteErrorFromResponse(
 
   if (status === 401 || status === 403) {
     code = "AUTH";
-  } else if (status === 413) {
-    code = "INVALID_MESSAGE";
   } else if (status === 400) {
     code = "INVALID_MESSAGE";
-  } else if (status === 429) {
-    code = "RATE_LIMITED";
-  } else if (status >= 500) {
-    code = "PROVIDER_UNAVAILABLE";
   } else {
-    code = "UNKNOWN";
+    code = httpStatusToErrorCode(status);
   }
 
   const firstMessage = errorBody?.errors?.[0]?.message ?? response.statusText;

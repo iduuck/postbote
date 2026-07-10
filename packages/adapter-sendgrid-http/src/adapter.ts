@@ -1,10 +1,4 @@
-import type {
-  Adapter,
-  EmailMessage,
-  SendOptions,
-  SendResult,
-} from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { type Adapter, defineAdapter } from "@postbote/core";
 import {
   toPostboteErrorFromFetchError,
   toPostboteErrorFromResponse,
@@ -26,20 +20,10 @@ export function sendgridHttp(options: SendGridHttpOptions): Adapter {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchFn = options.fetch ?? globalThis.fetch;
 
-  return {
+  return defineAdapter({
     name: "sendgrid-http",
-
-    async send(
-      message: EmailMessage,
-      sendOptions?: SendOptions,
-    ): Promise<SendResult> {
+    async send(message, { signal: userSignal }) {
       const payload = toSendGridPayload(message);
-      const userSignal = sendOptions?.signal;
-
-      if (userSignal?.aborted) {
-        const err = new DOMException("Aborted", "AbortError");
-        throw toPostboteErrorFromFetchError(err, userSignal);
-      }
 
       const signals = [userSignal, AbortSignal.timeout(timeoutMs)].filter(
         Boolean,
@@ -69,24 +53,13 @@ export function sendgridHttp(options: SendGridHttpOptions): Adapter {
       }
 
       const messageId = response.headers.get("x-message-id");
-      if (!messageId) {
-        throw new PostboteError(
-          "Send failed: missing X-Message-Id header in response",
-          {
-            code: "UNKNOWN",
-            provider: "sendgrid-http",
-          },
-        );
-      }
-
       return {
-        messageId,
-        provider: "sendgrid-http",
+        messageId: messageId ?? "",
         raw: {
           status: response.status,
           headers: Object.fromEntries(response.headers.entries()),
         },
       };
     },
-  };
+  });
 }

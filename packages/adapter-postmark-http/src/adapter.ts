@@ -1,10 +1,4 @@
-import type {
-  Adapter,
-  EmailMessage,
-  SendOptions,
-  SendResult,
-} from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { type Adapter, defineAdapter } from "@postbote/core";
 import {
   toPostboteErrorFromFetchError,
   toPostboteErrorFromResponse,
@@ -29,20 +23,10 @@ export function postmarkHttp(options: PostmarkHttpOptions): Adapter {
   const messageStream = options.messageStream ?? DEFAULT_MESSAGE_STREAM;
   const fetchFn = options.fetch ?? globalThis.fetch;
 
-  return {
+  return defineAdapter({
     name: "postmark-http",
-
-    async send(
-      message: EmailMessage,
-      sendOptions?: SendOptions,
-    ): Promise<SendResult> {
+    async send(message, { signal: userSignal }) {
       const payload = toPostmarkPayload(message, messageStream);
-      const userSignal = sendOptions?.signal;
-
-      if (userSignal?.aborted) {
-        const err = new DOMException("Aborted", "AbortError");
-        throw toPostboteErrorFromFetchError(err, userSignal);
-      }
 
       const signals = [userSignal, AbortSignal.timeout(timeoutMs)].filter(
         Boolean,
@@ -74,18 +58,10 @@ export function postmarkHttp(options: PostmarkHttpOptions): Adapter {
       }
 
       const result = body as { MessageID?: string };
-      if (!result.MessageID) {
-        throw new PostboteError("Send failed: missing MessageID in response", {
-          code: "UNKNOWN",
-          provider: "postmark-http",
-        });
-      }
-
       return {
-        messageId: result.MessageID,
-        provider: "postmark-http",
+        messageId: result.MessageID ?? "",
         raw: result,
       };
     },
-  };
+  });
 }

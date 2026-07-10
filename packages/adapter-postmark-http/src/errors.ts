@@ -1,5 +1,8 @@
-import type { ErrorCode } from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import {
+  type ErrorCode,
+  httpStatusToErrorCode,
+  PostboteError,
+} from "@postbote/core";
 
 const PROVIDER = "postmark-http";
 
@@ -29,14 +32,8 @@ export function toPostboteErrorFromResponse(
     } else {
       code = "INVALID_MESSAGE";
     }
-  } else if (status === 422) {
-    code = "INVALID_MESSAGE";
-  } else if (status === 429) {
-    code = "RATE_LIMITED";
-  } else if (status >= 500) {
-    code = "PROVIDER_UNAVAILABLE";
   } else {
-    code = "UNKNOWN";
+    code = httpStatusToErrorCode(status);
   }
 
   return new PostboteError(message, {

@@ -1,10 +1,4 @@
-import type {
-  Adapter,
-  EmailMessage,
-  SendOptions,
-  SendResult,
-} from "@postbote/core";
-import { PostboteError } from "@postbote/core";
+import { type Adapter, defineAdapter } from "@postbote/core";
 import {
   toPostboteErrorFromFetchError,
   toPostboteErrorFromResponse,
@@ -26,20 +20,10 @@ export function resendHttp(options: ResendHttpOptions): Adapter {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchFn = options.fetch ?? globalThis.fetch;
 
-  return {
+  return defineAdapter({
     name: "resend-http",
-
-    async send(
-      message: EmailMessage,
-      sendOptions?: SendOptions,
-    ): Promise<SendResult> {
+    async send(message, { signal: userSignal }) {
       const payload = toResendPayload(message);
-      const userSignal = sendOptions?.signal;
-
-      if (userSignal?.aborted) {
-        const err = new DOMException("Aborted", "AbortError");
-        throw toPostboteErrorFromFetchError(err, userSignal);
-      }
 
       const signals = [userSignal, AbortSignal.timeout(timeoutMs)].filter(
         Boolean,
@@ -70,18 +54,10 @@ export function resendHttp(options: ResendHttpOptions): Adapter {
       }
 
       const result = body as { id?: string };
-      if (!result.id) {
-        throw new PostboteError("Send failed: missing message ID in response", {
-          code: "UNKNOWN",
-          provider: "resend-http",
-        });
-      }
-
       return {
-        messageId: result.id,
-        provider: "resend-http",
+        messageId: result.id ?? "",
         raw: result,
       };
     },
-  };
+  });
 }
