@@ -1,0 +1,37 @@
+---
+title: SendGrid
+description: Send through SendGrid with its native SDK or direct HTTP API.
+---
+
+## Native SDK
+
+```bash title="Terminal"
+pnpm add @postbote/core @postbote/adapter-sendgrid
+```
+
+```ts title="src/lib/mailer.ts"
+import { sendgrid } from "@postbote/adapter-sendgrid";
+
+const adapter = sendgrid({ apiKey: process.env.SENDGRID_API_KEY! });
+```
+
+Pass `client` to use a preconfigured `@sendgrid/mail` instance.
+
+## HTTP adapter
+
+```bash title="Terminal"
+pnpm add @postbote/core @postbote/adapter-sendgrid-http
+```
+
+```ts title="src/lib/mailer.ts"
+import { sendgridHttp } from "@postbote/adapter-sendgrid-http";
+
+const adapter = sendgridHttp({
+  apiKey: process.env.SENDGRID_API_KEY!,
+  timeoutMs: 30_000,
+});
+```
+
+SendGrid returns `202 Accepted` with no response body. Both adapters read the provider message ID from the `X-Message-Id` response header.
+
+SendGrid does not expose a synchronous recipient-rejected failure, so that case is intentionally skipped in its adapter contract test.

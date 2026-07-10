@@ -1,0 +1,37 @@
+---
+title: Message Model
+description: Fields accepted by send and fields passed to adapters after normalization.
+---
+
+| Field | Input type | Notes |
+| --- | --- | --- |
+| `from` | `string \| Address` | Required sender |
+| `to` | address or address array | Required recipient list |
+| `cc`, `bcc` | address or address array | Optional recipient lists |
+| `replyTo` | `string \| Address` | Optional reply address |
+| `subject` | `string` | Required and CRLF-protected |
+| `html`, `text` | `string` | Provide at least one body format |
+| `attachments` | `Attachment[]` | `filename`, `content`, optional `contentType` |
+| `headers` | `Record<string, string>` | Provider-neutral, CRLF-protected |
+| `tags` | `Record<string, string>` | Provider-neutral metadata |
+
+```ts title="src/emails/types.ts"
+interface Address {
+  email: string;
+  name?: string;
+}
+
+interface Attachment {
+  filename: string;
+  content: string | Uint8Array;
+  contentType?: string;
+}
+
+interface SendResult {
+  messageId: string;
+  provider: string;
+  raw?: unknown;
+}
+```
+
+Adapters only receive the normalized message, where all address fields are `Address` objects and recipient fields are arrays.

@@ -1,0 +1,26 @@
+---
+title: Failover
+description: Continue with a fallback adapter when a retryable provider failure occurs.
+---
+
+```ts title="src/lib/mailer.ts"
+import { failover } from "@postbote/plugin-failover";
+
+const resilience = failover({
+  fallbacks: [postmark({ serverToken: process.env.POSTMARK_SERVER_TOKEN! })],
+  onFailover: ({ from, to, error }) => {
+    logger.warn({ from, to, code: error.code }, "mail provider failed over");
+  },
+});
+
+const mailer = createPostbote({
+  adapter: resend({ apiKey: process.env.RESEND_API_KEY! }),
+  plugins: [resilience],
+});
+```
+
+The primary adapter is always attempted first, followed by `fallbacks` in order. By default, failover continues only when `error.retryable` is true. Invalid messages, rejected recipients, and authentication failures never trigger a fallback.
+
+When every candidate fails, Postbote throws `FailoverExhaustedError`. Its `attempts` array records each adapter and its failure.
+
+Failover does not retry an adapter. If you add your own retry middleware, compose it deliberately: outer plugins observe one logical send, while plugins inside failover run once per attempt.

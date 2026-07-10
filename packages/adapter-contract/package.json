@@ -1,7 +1,7 @@
 {
   "name": "@postbote/adapter-contract",
   "version": "1.0.0",
-  "description": "Interne Contract-Testsuite für Postbote-Adapter",
+  "description": "Contract test suite for Postbote adapter authors",
   "license": "MIT",
   "repository": {
     "type": "git",

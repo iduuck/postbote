@@ -1,7 +1,7 @@
 {
   "name": "@postbote/testing",
   "version": "1.0.0",
-  "description": "Consumer-Test-Kit: Test-Adapter, Inbox-Assertions, Vitest/Jest-Matcher",
+  "description": "Consumer test kit with a test adapter, inbox assertions, and Vitest matchers",
   "license": "MIT",
   "repository": {
     "type": "git",

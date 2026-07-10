@@ -1,7 +1,7 @@
 {
   "name": "@postbote/adapter-sendgrid-http",
   "version": "1.0.0",
-  "description": "Postbote-Adapter für SendGrid (HTTP via fetch)",
+  "description": "Postbote adapter for SendGrid using HTTP and fetch",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 {
   "name": "@postbote/adapter-resend-http",
   "version": "1.0.0",
-  "description": "Postbote-Adapter für Resend (HTTP via fetch)",
+  "description": "Postbote adapter for Resend using HTTP and fetch",
   "license": "MIT",
   "repository": {
     "type": "git",

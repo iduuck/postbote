@@ -1,0 +1,15 @@
+---
+title: Adapter Options
+description: Constructor options for all official provider adapters.
+---
+
+| Adapter | Required | Optional |
+| --- | --- | --- |
+| Resend native | `apiKey` unless `client` is supplied | `client` |
+| Resend HTTP | `apiKey` | `baseUrl`, `timeoutMs`, `fetch` |
+| Postmark native | `serverToken` unless `client` is supplied | `client`, `messageStream`, `timeoutMs` |
+| Postmark HTTP | `serverToken` | `baseUrl`, `timeoutMs`, `fetch`, `messageStream` |
+| SendGrid native | `apiKey` unless `client` is supplied | `client` |
+| SendGrid HTTP | `apiKey` | `baseUrl`, `timeoutMs`, `fetch` |
+
+All HTTP adapters default to a 30-second timeout and `globalThis.fetch`. Native adapters use their provider SDK's behavior except where an option is explicitly passed through.

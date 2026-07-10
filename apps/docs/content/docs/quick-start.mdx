@@ -1,0 +1,33 @@
+---
+title: Quick Start
+description: Create a mailer once and send a normalized message.
+---
+
+Create one Postbote instance during your application's server startup, then inject or import that instance where emails are sent.
+
+```ts title="src/lib/mailer.ts"
+import { createPostbote } from "@postbote/core";
+import { resend } from "@postbote/adapter-resend";
+
+export const mailer = createPostbote({
+  adapter: resend({ apiKey: process.env.RESEND_API_KEY! }),
+});
+```
+
+Send a message with a sender, at least one recipient, a subject, and either `text`, `html`, or both.
+
+```ts title="src/emails/send-welcome.ts"
+const result = await mailer.send({
+  from: "Acme <onboarding@acme.com>",
+  to: ["sam@example.com", "Taylor <taylor@example.com>"],
+  replyTo: "support@acme.com",
+  subject: "Welcome to Acme",
+  text: "Thanks for joining.",
+  html: "<p>Thanks for joining.</p>",
+  tags: { kind: "welcome" },
+});
+
+console.log(result.messageId, result.provider);
+```
+
+Postbote parses addresses, validates the message, protects headers from CRLF injection, and gives the normalized message to the adapter. Provider failures reject with a `PostboteError` unless you use the [Better Result plugin](/plugins/better-result).

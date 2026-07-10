@@ -1,0 +1,12 @@
+{
+  "title": "Reference",
+  "pages": [
+    "core",
+    "message-model",
+    "error-codes",
+    "adapter-options",
+    "plugin-options",
+    "testing-api",
+    "packages"
+  ]
+}

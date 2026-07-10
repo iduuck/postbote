@@ -1,0 +1,23 @@
+---
+title: Logger
+description: Receive structured lifecycle events without choosing a logging library for you.
+---
+
+```ts title="src/lib/mailer.ts"
+import { logger } from "@postbote/plugin-logger";
+
+const logging = logger({
+  capture: "counts",
+  onEvent: (event) => appLogger.info(event),
+});
+```
+
+| Capture mode | Data on `send:start` |
+| --- | --- |
+| `"none"` | No recipient information |
+| `"counts"` | `toCount` only, the default |
+| `"full"` | Recipient count and `to` addresses |
+
+The plugin emits `send:start`, `send:success`, `send:error`, and `attempt:error` events. Event values are plain JSON-compatible data, never `Error` instances. Exceptions thrown by `onEvent` are ignored.
+
+Place `logger()` before `failover()` to report one final send outcome plus failed-attempt events.

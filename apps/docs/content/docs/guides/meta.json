@@ -1,0 +1,9 @@
+{
+  "title": "Guides",
+  "pages": [
+    "testing",
+    "writing-an-adapter",
+    "writing-a-plugin",
+    "resilient-and-observable-sends"
+  ]
+}

@@ -1,0 +1,32 @@
+---
+title: React Email
+description: Render a React email component before message validation and adapter delivery.
+---
+
+```tsx title="src/emails/send-welcome.tsx"
+import { reactEmail } from "@postbote/plugin-react-email";
+
+const mailer = createPostbote({
+  adapter,
+  plugins: [reactEmail()],
+});
+
+await mailer.send({
+  from: "onboarding@acme.com",
+  to: "sam@example.com",
+  subject: "Welcome",
+  body: <Welcome name="Sam" />,
+});
+```
+
+The extension accepts `ReactElement`, not `ReactNode`, to reject accidental string templates. It removes `body` after rendering, so adapters receive only the standard normalized `html` and `text` fields.
+
+Plain text rendering defaults to `true` and runs when no explicit `text` value is present. Set `plainText: false` to render HTML only. If both `body` and `html` are supplied, the rendered body wins.
+
+If you store the plugin separately, preserve its tuple type:
+
+```ts title="src/lib/mailer.ts"
+const plugins = [reactEmail()] as const;
+```
+
+Rendering failures are non-retryable `INVALID_MESSAGE` errors from `plugin-react-email`.

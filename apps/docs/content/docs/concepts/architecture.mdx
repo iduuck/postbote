@@ -1,0 +1,22 @@
+---
+title: Architecture
+description: Understand the boundary between application code, plugins, adapters, and providers.
+---
+
+Postbote keeps provider-specific details at the edge of your application.
+
+```text title="Delivery pipeline"
+Application -> Postbote -> plugins -> adapter -> email provider
+```
+
+`@postbote/core` owns the shared message model, message normalization, error model, and middleware pipeline. It deliberately does not know about Resend, Postmark, or SendGrid.
+
+An adapter converts the normalized `EmailMessage` into the provider payload and returns a provider message ID. A plugin wraps cross-cutting behavior such as observability or a fallback provider without coupling the core to that feature.
+
+## One logical send
+
+Calling `postbote.send()` is one logical operation. A plugin can make more than one adapter attempt, but the caller receives one final `SendResult` or one final `PostboteError`. Logger and OpenTelemetry plugins can report the individual attempts when placed outside failover.
+
+## Create the instance once
+
+The Postbote instance is immutable after creation. Configure it at the composition root of your server and keep application code dependent on the `Postbote` interface rather than on a provider client.

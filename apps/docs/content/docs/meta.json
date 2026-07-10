@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "index",
+    "installation",
+    "quick-start",
+    "choosing-an-adapter",
+    "concepts",
+    "adapters",
+    "plugins",
+    "guides",
+    "reference"
+  ]
+}

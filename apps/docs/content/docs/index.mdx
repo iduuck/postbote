@@ -1,0 +1,39 @@
+---
+title: Postbote
+description: Provider-agnostic transactional email for TypeScript.
+---
+
+Postbote gives your application one dependable API for sending transactional email, while adapters handle the provider-specific work underneath.
+
+```ts title="src/lib/mailer.ts"
+import { createPostbote } from "@postbote/core";
+import { resend } from "@postbote/adapter-resend";
+
+const postbote = createPostbote({
+  adapter: resend({ apiKey: process.env.RESEND_API_KEY! }),
+});
+
+await postbote.send({
+  from: "Acme <onboarding@acme.com>",
+  to: "sam@example.com",
+  subject: "Welcome",
+  text: "Thanks for joining Acme.",
+});
+```
+
+## Why Postbote?
+
+- **Keep provider code at the boundary.** Application code sends a provider-neutral message.
+- **Switch providers deliberately.** Replace an adapter instead of rewriting every email call.
+- **Build reliability in layers.** Compose failover, lifecycle hooks, logging, and tracing as plugins.
+- **Test without delivery.** The testing package records messages in memory and simulates provider failures.
+
+## What it does not do
+
+Postbote sends transactional email. It is not a campaign platform, contact manager, queue, scheduler, tracking-pixel service, or browser SDK. Keep credentials on the server.
+
+## Start here
+
+- [Install Postbote](/installation)
+- [Send your first email](/quick-start)
+- [Choose an adapter](/choosing-an-adapter)

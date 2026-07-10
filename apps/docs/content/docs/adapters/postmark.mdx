@@ -1,0 +1,40 @@
+---
+title: Postmark
+description: Send through Postmark with its native SDK or direct HTTP API.
+---
+
+## Native SDK
+
+```bash title="Terminal"
+pnpm add @postbote/core @postbote/adapter-postmark
+```
+
+```ts title="src/lib/mailer.ts"
+import { postmark } from "@postbote/adapter-postmark";
+
+const adapter = postmark({
+  serverToken: process.env.POSTMARK_SERVER_TOKEN!,
+  messageStream: "outbound",
+});
+```
+
+Pass `client` to inject an existing `ServerClient`. `timeoutMs` is forwarded to the SDK.
+
+## HTTP adapter
+
+```bash title="Terminal"
+pnpm add @postbote/core @postbote/adapter-postmark-http
+```
+
+```ts title="src/lib/mailer.ts"
+import { postmarkHttp } from "@postbote/adapter-postmark-http";
+
+const adapter = postmarkHttp({
+  serverToken: process.env.POSTMARK_SERVER_TOKEN!,
+  messageStream: "outbound",
+});
+```
+
+The HTTP adapter accepts `baseUrl`, `timeoutMs`, and custom `fetch`. Postmark accepts at most 50 recipients in its comma-separated fields; the adapter reports an `INVALID_MESSAGE` error when that limit is exceeded.
+
+Postmark `tags.tag` is also mapped to the provider's native `Tag` field.

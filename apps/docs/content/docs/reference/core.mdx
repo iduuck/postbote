@@ -1,0 +1,35 @@
+---
+title: Core API
+description: Public exports from @postbote/core.
+---
+
+## `createPostbote(config)`
+
+Creates a mailer from one adapter and an optional plugin tuple.
+
+```ts title="src/lib/mailer.ts"
+const mailer = createPostbote({
+  adapter,
+  plugins: [pluginA, pluginB] as const,
+});
+```
+
+## `Postbote.send(input, options?)`
+
+Transforms input, normalizes the email, and executes the middleware and adapter pipeline. `options.signal` accepts an `AbortSignal`.
+
+## `parseAddress(input)` and `formatAddress(address)`
+
+Parse `"Name <email@example.com>"` or `"email@example.com"` into an `Address`, or format a normalized address as a string.
+
+## `normalizeMessage(input)`
+
+Returns an `EmailMessage` after validating required content, address structure, and CRLF safety.
+
+## Errors and adapter helpers
+
+`PostboteError`, `isPostboteError()`, and `toPostboteError()` expose the normalized error model. `defineAdapter()` and `httpStatusToErrorCode()` support custom provider adapters.
+
+## Pipeline types
+
+`Middleware`, `SendContext`, `SendAttempt`, and `Next` are exported for plugin authors.

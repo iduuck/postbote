@@ -1,7 +1,7 @@
 {
   "name": "@postbote/adapter-resend",
   "version": "1.0.0",
-  "description": "Postbote-Adapter für Resend (natives SDK)",
+  "description": "Postbote adapter for Resend using the native SDK",
   "license": "MIT",
   "repository": {
     "type": "git",

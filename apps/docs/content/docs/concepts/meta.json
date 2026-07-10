@@ -1,0 +1,9 @@
+{
+  "title": "Concepts",
+  "pages": [
+    "architecture",
+    "messages",
+    "plugins-and-ordering",
+    "errors-and-safety"
+  ]
+}

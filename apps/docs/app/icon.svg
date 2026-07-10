@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Postbote</title>
+  <rect width="64" height="64" rx="14" fill="#A62B20"/>
+  <path d="M14 19h36v26H14z" fill="#FFF7ED"/>
+  <path d="m15 20 17 14L49 20" stroke="#A62B20" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

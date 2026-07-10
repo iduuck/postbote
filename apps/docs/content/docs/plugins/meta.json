@@ -1,0 +1,12 @@
+{
+  "title": "Plugins",
+  "pages": [
+    "index",
+    "hooks",
+    "failover",
+    "logger",
+    "otel",
+    "react-email",
+    "better-result"
+  ]
+}

@@ -1,0 +1,22 @@
+---
+title: Resilient and Observable Sends
+description: Compose hooks, logs, traces, and failover into one operational mailer.
+---
+
+Place plugins from the broad logical operation toward individual delivery attempts.
+
+```ts title="src/lib/mailer.ts"
+const mailer = createPostbote({
+  adapter: primary,
+  plugins: [
+    hooks({ beforeSend: enforcePolicy }),
+    logger({ onEvent: appLogger.info }),
+    otel({ tracer }),
+    failover({ fallbacks: [secondary] }),
+  ],
+});
+```
+
+This order means policy runs once before delivery. Logger and tracing report one send and include failed attempts. Failover makes the primary attempt and then each fallback attempt when the failure is retryable.
+
+Treat failover as provider resilience, not delivery certainty. A provider may accept an email before a network failure is reported, so retrying or failing over after ambiguous failures can result in duplicate delivery. Use application-level idempotency where that risk matters.

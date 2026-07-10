@@ -1,0 +1,21 @@
+---
+title: Testing API
+description: The public test adapter, inbox, simulations, and Vitest matchers.
+---
+
+`createTestAdapter(options?)` returns a standard `Adapter` plus test-only APIs:
+
+| API | Purpose |
+| --- | --- |
+| `adapter.inbox.all()` | Return a defensive copy of recorded emails |
+| `adapter.inbox.first()`, `last()`, `at(index)` | Read a recorded email or throw when absent |
+| `adapter.inbox.to(email)` | Filter `to`, `cc`, and `bcc` case-insensitively |
+| `adapter.inbox.from(email)` | Filter sender |
+| `adapter.inbox.withSubject(query)` | Filter exact or regular-expression subject |
+| `adapter.calls` | Include all sends, including failures |
+| `adapter.failNext()` | Queue deterministic failures |
+| `adapter.failAlways()` | Fail every send until reset |
+| `adapter.failIf()` | Fail messages selected by a predicate |
+| `adapter.reset()` | Clear inbox, calls, and simulations |
+
+Import `@postbote/testing/matchers` once in your Vitest setup file to add `toHaveSentEmail`, `toHaveSentEmailTo`, and `toHaveSentEmailMatching`.

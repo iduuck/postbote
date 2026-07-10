@@ -1,0 +1,24 @@
+---
+title: Installation
+description: Install the core package and one provider adapter.
+---
+
+Install `@postbote/core` together with the adapter you want to use.
+
+```bash title="Terminal"
+pnpm add @postbote/core @postbote/adapter-resend
+```
+
+Postbote is ESM-only and requires Node.js 20.19 or later. The HTTP adapters have no provider SDK dependency and are the appropriate choice for fetch-compatible edge runtimes.
+
+## Add a plugin
+
+Plugins are separate packages. For example, add failover only when you need a fallback provider.
+
+```bash title="Terminal"
+pnpm add @postbote/plugin-failover @postbote/adapter-postmark
+```
+
+## Use secrets safely
+
+Load API keys from server-only environment variables. Do not import Postbote or an adapter into browser code, and never expose a provider key through a `NEXT_PUBLIC_` variable.

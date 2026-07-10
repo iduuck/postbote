@@ -1,0 +1,46 @@
+---
+title: Testing Email
+description: Test delivery behavior in memory without a provider, SMTP server, or rendered inbox.
+---
+
+Install the consumer test kit as a development dependency.
+
+```bash title="Terminal"
+pnpm add -D @postbote/testing
+```
+
+Inject the adapter into the composition root so production uses a provider adapter and tests use `createTestAdapter()`.
+
+```ts title="src/emails/send-welcome.test.ts"
+import { createPostbote } from "@postbote/core";
+import { createTestAdapter } from "@postbote/testing";
+
+const adapter = createTestAdapter();
+const mailer = createPostbote({ adapter });
+
+await mailer.send({
+  from: "noreply@acme.com",
+  to: "sam@example.com",
+  subject: "Welcome",
+  text: "Hello Sam",
+});
+
+expect(adapter.inbox.last().subject).toBe("Welcome");
+expect(adapter.inbox.to("sam@example.com")).toHaveLength(1);
+```
+
+Call `adapter.reset()` in `beforeEach`. The inbox stores defensive copies, and failed sends are kept in `adapter.calls` but not in the inbox.
+
+## Simulate provider failures
+
+```ts title="src/emails/send-welcome.test.ts"
+adapter.failNext("TIMEOUT", { times: 2 });
+adapter.failAlways("RATE_LIMITED");
+adapter.failIf((message) =>
+  message.to[0].email.endsWith("@blocked.test")
+    ? "RECIPIENT_REJECTED"
+    : undefined,
+);
+```
+
+`failNext` has priority over `failIf`, which has priority over `failAlways`.

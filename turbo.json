@@ -3,15 +3,30 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**"],
-      "outputs": ["dist/**"]
+      "inputs": [
+        "src/**",
+        "app/**",
+        "content/**",
+        "public/**",
+        "source.config.ts",
+        "next.config.*",
+        "postcss.config.*"
+      ],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "typecheck": {
-      "inputs": ["src/**"],
+      "inputs": [
+        "src/**",
+        "app/**",
+        "content/**",
+        "source.config.ts",
+        "next-env.d.ts",
+        "tsconfig.json"
+      ],
       "dependsOn": ["^build"]
     },
     "test": {
-      "inputs": ["src/**"],
+      "inputs": ["src/**", "app/**", "content/**"],
       "dependsOn": ["build"]
     },
     "dev": {

@@ -1,0 +1,24 @@
+---
+title: Write a Plugin
+description: Add reusable cross-cutting behavior without making the core provider-aware.
+---
+
+Use plain middleware for behavior that only wraps the normalized send pipeline.
+
+```ts title="src/plugins/audit.ts"
+import type { Middleware } from "@postbote/core";
+
+export function audit(): Middleware {
+  return async (ctx, next) => {
+    const result = await next();
+    await writeAuditRecord({ messageId: result.messageId, provider: ctx.adapter.name });
+    return result;
+  };
+}
+```
+
+Middleware receives a mutable `SendContext` and `next()`. It may change `ctx.message` or `ctx.adapter`, but should preserve the caller's final result semantics. A middleware that runs inside failover can be invoked multiple times, so make it idempotent.
+
+Use a `PluginObject` when you need an input extension or a full send wrapper. Input transforms must return regular `EmailMessageInput`; extension-only fields must be removed before normalization. Only one plugin may define `wrapSend`.
+
+Test plugin behavior with `@postbote/testing` and test adapters before publishing it.

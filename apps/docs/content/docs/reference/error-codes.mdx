@@ -1,0 +1,18 @@
+---
+title: Error Codes
+description: Normalized error codes shared across adapters and plugins.
+---
+
+| Code | Default retryability | Typical source |
+| --- | --- | --- |
+| `ABORTED` | `false` | Aborted send signal |
+| `AUTH` | `false` | Invalid provider credential |
+| `CANCELLED` | `false` | Hooks policy cancellation |
+| `INVALID_MESSAGE` | `false` | Validation, rendering, or provider payload validation |
+| `RECIPIENT_REJECTED` | `false` | Provider rejects the recipient |
+| `RATE_LIMITED` | `true` | Provider rate limit |
+| `PROVIDER_UNAVAILABLE` | `true` | Network or provider availability failure |
+| `TIMEOUT` | `true` | Request timeout |
+| `UNKNOWN` | `false` | An unmapped exception |
+
+`PostboteError` also includes `message`, `provider`, `retryable`, and an optional `cause`. The error brand is global-symbol based; use `isPostboteError()` for a reliable guard.

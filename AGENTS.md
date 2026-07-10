@@ -23,6 +23,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/plugin-better-result` | `wrapSend` plugin returning `Result<SendResult, PostboteError>` |
 | `packages/testing` | Consumer test kit — `createTestAdapter`, `TestInbox`, error simulation, Vitest/Jest matchers (`./matchers` subpath) |
 | `examples/` | Executable observability, React Email, and better-result examples |
+| `apps/docs` | English Fumadocs/Next.js documentation site, served at `/`; MDX lives in `content/docs` |
 | `plans/` | Detailed plans & ADRs — **gitignored**, read locally! (especially before starting any phase) |
 
 ## Commands
@@ -37,6 +38,8 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `pnpm --filter @postbote/core test` | Single-package test |
 | `pnpm --filter @postbote/plugin-failover test` | Single-package test |
 | `pnpm --filter @postbote/core test:coverage` | Coverage (threshold: ≥95 %) |
+| `pnpm --filter @postbote/docs dev` | Run the Fumadocs site locally at `http://localhost:3000` |
+| `pnpm --filter @postbote/docs build` | Build the Vercel-ready documentation site |
 | `pnpm changeset` | Create a new changeset |
 | `pnpm version && pnpm release` | Changesets publish |
 | `node scripts/quality.mjs` | Quality gates: `publint` + `attw` (type consistency) + `size-limit` (bundle budgets) |

@@ -1,0 +1,19 @@
+---
+title: Choosing an Adapter
+description: Pick a provider and decide between its native SDK and HTTP adapter.
+---
+
+Every provider has two official adapter styles.
+
+| Style | Best for | Trade-off |
+| --- | --- | --- |
+| Native SDK | Node.js services already using the provider SDK | Adds the provider SDK dependency |
+| HTTP | Edge runtimes, minimal bundles, custom fetch | Uses Postbote's fetch implementation instead of the provider SDK |
+
+| Provider | Native package | HTTP package |
+| --- | --- | --- |
+| Resend | `@postbote/adapter-resend` | `@postbote/adapter-resend-http` |
+| Postmark | `@postbote/adapter-postmark` | `@postbote/adapter-postmark-http` |
+| SendGrid | `@postbote/adapter-sendgrid` | `@postbote/adapter-sendgrid-http` |
+
+All official adapters normalize provider errors to the same Postbote error codes. Choose the adapter based on runtime and dependency needs, not because your application needs a different send API.

@@ -1,7 +1,7 @@
 {
   "name": "@postbote/adapter-postmark-http",
   "version": "1.0.0",
-  "description": "Postbote-Adapter für Postmark (HTTP via fetch)",
+  "description": "Postbote adapter for Postmark using HTTP and fetch",
   "license": "MIT",
   "repository": {
     "type": "git",

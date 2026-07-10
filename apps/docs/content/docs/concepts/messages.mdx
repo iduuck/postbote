@@ -1,0 +1,38 @@
+---
+title: Messages
+description: The portable email model shared by every Postbote adapter.
+---
+
+Postbote accepts ergonomic input and converts it to a normalized `EmailMessage` before plugins and adapters run.
+
+```ts title="src/emails/send-welcome.ts"
+await mailer.send({
+  from: { name: "Acme", email: "onboarding@acme.com" },
+  to: "Sam <sam@example.com>",
+  cc: ["team@example.com"],
+  subject: "Welcome",
+  html: "<h1>Welcome</h1>",
+  text: "Welcome",
+  attachments: [
+    {
+      filename: "guide.pdf",
+      content: pdfBytes,
+      contentType: "application/pdf",
+    },
+  ],
+  headers: { "X-Request-Id": requestId },
+  tags: { email: "welcome" },
+});
+```
+
+## Addresses
+
+`from`, `to`, `cc`, `bcc`, and `replyTo` accept either an address string such as `"Sam <sam@example.com>"` or an `{ email, name? }` object. `to` may be a single address or an array.
+
+## Body content
+
+Provide `text`, `html`, or both. Most applications should send both formats. The [React Email plugin](/plugins/react-email) can render a `ReactElement` into them before normalization.
+
+## Portable fields
+
+Headers, attachments, and tags are provider-neutral input. An adapter maps them to the closest supported provider fields. Use a custom adapter when your workflow requires provider-only request fields.

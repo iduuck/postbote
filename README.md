@@ -1,6 +1,6 @@
 # Postbote
 
-**Provider-agnostic email SDK for TypeScript.** One unified API for Resend, Postmark, SendGrid, and more — with middleware plugins for cross-cutting concerns like failover.
+**Provider-agnostic transactional email for TypeScript.** One unified API for Resend, Postmark, and SendGrid, with composable plugins for resilience, lifecycle policy, rendering, and observability.
 
 ```ts
 import { createPostbote } from "@postbote/core";
@@ -30,6 +30,11 @@ const result = await postbote.send({
 | [`@postbote/adapter-sendgrid`](./packages/adapter-sendgrid) | SendGrid — native `@sendgrid/mail` SDK |
 | [`@postbote/adapter-sendgrid-http`](./packages/adapter-sendgrid-http) | SendGrid — fetch-based, zero SDK deps |
 | [`@postbote/plugin-failover`](./packages/plugin-failover) | Automatic provider failover |
+| [`@postbote/plugin-hooks`](./packages/plugin-hooks) | Lifecycle hooks, message transforms, and policy cancellation |
+| [`@postbote/plugin-logger`](./packages/plugin-logger) | Structured JSON-safe lifecycle events |
+| [`@postbote/plugin-otel`](./packages/plugin-otel) | OpenTelemetry spans and failed-attempt events |
+| [`@postbote/plugin-react-email`](./packages/plugin-react-email) | Render React email components to HTML and text |
+| [`@postbote/plugin-better-result`](./packages/plugin-better-result) | Return `Result` values instead of throwing |
 | [`@postbote/adapter-contract`](./packages/adapter-contract) | Contract test suite for adapter authors |
 | [`@postbote/testing`](./packages/testing) | Test kit (TestInbox, error simulation, matchers) |
 
@@ -48,7 +53,9 @@ graph LR
 
     subgraph Middleware
         Failover["plugin-failover"]
-        Logging["plugin-logging<br/>(planned)"]
+        Hooks["plugin-hooks"]
+        Observability["logger + otel"]
+        Rendering["react-email"]
     end
 
     subgraph Adapter["Adapter (one per provider)"]
@@ -66,16 +73,22 @@ pnpm add @postbote/core @postbote/adapter-resend
 
 All packages are ESM-only, require Node >= 20.19, and ship as pre-built `.js` + `.d.ts`.
 
+## Documentation
+
+The full documentation site covers installation, provider selection, message and error concepts, every plugin, testing, and extension guides. Its source lives in [`apps/docs`](./apps/docs) and is ready to deploy on Vercel.
+
 ## Guides
 
 - [Write your own adapter](./packages/adapter-contract/README.md) — use the contract suite
 - [Write your own plugin](./packages/core/README.md) — middleware pipeline API
 - [Testing email code](./packages/testing/README.md) — without sending real emails
 - [Failover setup](./packages/plugin-failover/README.md) — multi-provider resilience
+- [Lifecycle hooks](./packages/plugin-hooks/README.md) — transform, inspect, or cancel sends
+- [Observability](./packages/plugin-logger/README.md) — structured logs and OpenTelemetry tracing
 
 ## What Postbote is NOT
 
-- ❌ No email rendering/templating
+- ❌ No built-in template or rendering system (use `@postbote/plugin-react-email` when React Email fits)
 - ❌ No queue, scheduling, or "send later"
 - ❌ No browser usage (API keys belong server-side)
 - ❌ No analytics/tracking pixels
@@ -87,4 +100,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-MIT &mdash; see [LICENSE.md](./LICENSE.md).
+MIT - see [LICENSE](./LICENSE).

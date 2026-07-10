@@ -1,6 +1,6 @@
 # @postbote/core
 
-Provider-agnostisches E-Mail-SDK — Typdefinitionen, Fehlerbehandlung, Adressnormalisierung und Middleware-Pipeline.
+Provider-agnostic transactional email core for TypeScript: message types, error handling, address normalization, and the middleware pipeline.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Provider-agnostisches E-Mail-SDK — Typdefinitionen, Fehlerbehandlung, Adressno
 pnpm add @postbote/core
 ```
 
-## Verwendung
+## Usage
 
 ```ts
 import { createPostbote } from "@postbote/core";
@@ -17,7 +17,7 @@ import type { Adapter, SendResult } from "@postbote/core";
 const myAdapter: Adapter = {
   name: "custom",
   async send(message) {
-    // an Adapter implementieren
+    // Implement the provider-specific delivery call here.
     return { messageId: "...", provider: "custom" };
   },
 };
@@ -34,27 +34,28 @@ const result = await postbote.send({
 
 ## API
 
-- **`createPostbote(config)`** — Erzeugt eine Postbote-Instanz mit Adapter + optionalen Middleware-Plugins
-- **`Postbote.send(input, options?)`** — Normalisiert und sendet eine E-Mail; unterstützt `options.signal` (AbortSignal)
-- **`parseAddress(input)`** — Parst `"Name <email>"` oder `"email"` zu `Address`
-- **`normalizeMessage(input)`** — Validiert und normalisiert `EmailMessageInput` zu `EmailMessage`
-- **`PostboteError`** — Markierte Fehlerklasse mit `code`, `provider`, `retryable`
-- **`compose(middlewares)`** — Koa-artige Middleware-Komposition (Onion-Modell)
+- **`createPostbote(config)`** - Creates a Postbote instance from an adapter and optional plugins.
+- **`Postbote.send(input, options?)`** - Normalizes and sends an email. Supports `options.signal` (`AbortSignal`).
+- **`parseAddress(input)`** - Parses `"Name <email>"` or `"email"` into an `Address`.
+- **`normalizeMessage(input)`** - Validates and normalizes `EmailMessageInput` into `EmailMessage`.
+- **`PostboteError`** - Branded error with `code`, `provider`, and `retryable`.
+- **`compose(middlewares)`** - Koa-style middleware composition.
 
 ## Error Codes
 
-- `ABORTED` — Sendvorgang via AbortSignal abgebrochen
-- `AUTH` — Authentifizierungsfehler
-- `INVALID_MESSAGE` — Validierungsfehler
-- `RECIPIENT_REJECTED` — Empfänger abgewiesen
-- `RATE_LIMITED` — Rate-Limit erreicht (retryable)
-- `PROVIDER_UNAVAILABLE` — Provider nicht erreichbar (retryable)
-- `TIMEOUT` — Zeitüberschreitung (retryable)
-- `UNKNOWN` — Sonstiger Fehler
+- `ABORTED` - Send was aborted through an `AbortSignal`.
+- `AUTH` - Provider authentication failed.
+- `CANCELLED` - A plugin cancelled the send.
+- `INVALID_MESSAGE` - Message validation or rendering failed.
+- `RECIPIENT_REJECTED` - Provider rejected a recipient.
+- `RATE_LIMITED` - Provider rate limit reached (retryable).
+- `PROVIDER_UNAVAILABLE` - Provider or network unavailable (retryable).
+- `TIMEOUT` - Request timed out (retryable).
+- `UNKNOWN` - An unmapped failure occurred.
 
-## Sicherheit
+## Security
 
-`normalizeMessage` validiert alle benutzerdefinierten Eingaben gegen CRLF-Injection (`\r`, `\n` in Subject, Header-Namen/Werten und Absender-/Empfängernamen).
+`normalizeMessage` validates user-controlled input against CRLF injection: `\r` and `\n` are rejected in subjects, header names and values, and sender or recipient display names.
 
 ## Adapters
 
@@ -66,7 +67,7 @@ const result = await postbote.send({
 
 ## Write your own adapter
 
-Use the [contract test suite](../adapter-contract/README.md) to ensure your adapter follows the same behavioural contract as all official adapters — every adapter must pass it.
+Use the [contract test suite](../adapter-contract/README.md) to ensure your adapter follows the same behavioral contract as official adapters. Every adapter should pass it.
 
 `defineAdapter` is the recommended path. It validates the provider name, handles pre-aborted signals, adds the provider to results, rejects missing message IDs, and normalizes unknown errors.
 
@@ -107,4 +108,4 @@ You can also implement the structural `Adapter` interface directly when a custom
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT - see [LICENSE.md](LICENSE.md).

@@ -1,6 +1,6 @@
 # @postbote/plugin-failover
 
-Automatisches Ausweichen auf Fallback-Adapter bei Provider-Ausfällen.
+Automatically switch to fallback adapters when a provider is unavailable.
 
 ```ts
 import { createPostbote } from "@postbote/core";
@@ -20,28 +20,28 @@ const postbote = createPostbote({
 });
 ```
 
-## Semantik
+## Semantics
 
-1. **Adapter-Kette** = `[ctx.adapter, ...fallbacks]` — der primäre Adapter aus der Postbote-Config ist immer der erste Versuch.
-2. **Pro Adapter**: `ctx.adapter = adapter; await next()`. Erfolg → Ergebnis sofort zurück.
-3. **Fehler** → `shouldFailover(error, ctx)`:
-   - `false` (z. B. `INVALID_MESSAGE`, `RECIPIENT_REJECTED`, `AUTH`) → Fehler **sofort unverändert** weiterwerfen. Kein Fallback probiert.
-   - `true` → `onFailover` feuern, nächsten Adapter probieren.
-4. **Kette erschöpft** → `FailoverExhaustedError` mit komplettem `attempts`-Protokoll.
-5. **Kein eigener Retry** auf demselben Adapter — das ist die Aufgabe eines Retry-Plugins (Komposition: `plugins: [failover(...), retry(...)]`).
+1. **Adapter chain** is `[ctx.adapter, ...fallbacks]`. The primary adapter from the Postbote configuration is always attempted first.
+2. **For each adapter**, failover assigns `ctx.adapter = adapter` and calls `await next()`. On success, it returns the result immediately.
+3. **On an error**, `shouldFailover(error, ctx)` decides whether to continue:
+   - `false` for errors such as `INVALID_MESSAGE`, `RECIPIENT_REJECTED`, or `AUTH` rethrows the original error immediately.
+   - `true` calls `onFailover` and tries the next adapter.
+4. **When the chain is exhausted**, `FailoverExhaustedError` includes the complete `attempts` record.
+5. **Failover does not retry an adapter.** Add retry behavior separately when your application needs it.
 
-## Plugin-Reihenfolge
+## Plugin Ordering
 
-`plugins`-Array = **außen → innen**.
+The `plugins` array is ordered **outer to inner**.
 
-- `failover` möglichst **weit innen** (letztes Element), damit äußere Plugins (Logging, Metriken) den Send als *eine* Operation mit finalem Ergebnis sehen.
-- Ein Plugin **hinter** failover (weiter innen) läuft pro `next()`-Aufruf und damit pro Versuch — es muss idempotent sein.
+- Keep `failover` **as far inside as possible** (usually last) so outer plugins such as logging and metrics observe one logical send and its final outcome.
+- A plugin **after** failover (further inside) runs for every `next()` call and therefore for every adapter attempt. It must be idempotent.
 
 ```ts
-// Empfohlen: failover innen
+// Recommended: failover stays inside observability plugins.
 plugins: [logging, metrics, failover({ fallbacks: [...] })]
 
-// Nur wenn du jeden Versuch einzeln sehen willst:
+// Use this only when a plugin must run for each adapter attempt.
 plugins: [failover({ fallbacks: [...] }), perAttemptPlugin]
 ```
 
@@ -51,9 +51,9 @@ plugins: [failover({ fallbacks: [...] }), perAttemptPlugin]
 
 | Option | Typ | Default | Beschreibung |
 |---|---|---|---|
-| `fallbacks` | `Adapter[]` | — | Fallback-Adapter in Prioritäts-Reihenfolge |
-| `shouldFailover?` | `(error, ctx) => boolean` | `(e) => e.retryable` | Entscheidet, ob bei einem Fehler der nächste Adapter probiert wird |
-| `onFailover?` | `(info) => void` | — | Hook vor jedem Wechsel. Werfende Hooks brechen den Versand nicht ab. |
+| `fallbacks` | `Adapter[]` | - | Fallback adapters in priority order |
+| `shouldFailover?` | `(error, ctx) => boolean` | `(e) => e.retryable` | Decides whether an error should try the next adapter |
+| `onFailover?` | `(info) => void` | - | Called before each switch. Throwing callbacks do not interrupt delivery. |
 
 ### `FailoverExhaustedError`
 
@@ -66,4 +66,4 @@ class FailoverExhaustedError extends PostboteError {
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT - see [LICENSE.md](LICENSE.md).

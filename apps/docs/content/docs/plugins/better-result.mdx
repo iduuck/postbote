@@ -1,0 +1,26 @@
+---
+title: Better Result
+description: Return a typed Result value from send instead of rejecting on Postbote errors.
+---
+
+```ts title="src/emails/send-welcome.ts"
+import { betterResult } from "@postbote/plugin-better-result";
+
+const mailer = createPostbote({
+  adapter,
+  plugins: [betterResult()],
+});
+
+const result = await mailer.send(message);
+
+const messageId = result.match({
+  ok: (sent) => sent.messageId,
+  err: (error) => `delivery failed: ${error.code}`,
+});
+```
+
+With the plugin, `send()` is inferred as `Promise<Result<SendResult, PostboteError>>`. Without it, the return type is `Promise<SendResult>` and failures reject.
+
+The wrapper includes input transforms, validation, middleware, and adapter execution. Aborted sends and hook cancellations are therefore `Err` values with `ABORTED` or `CANCELLED` codes.
+
+Only one send-wrapper plugin may be configured. It can be combined with input extensions such as `reactEmail()` in either tuple order.

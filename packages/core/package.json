@@ -1,7 +1,7 @@
 {
   "name": "@postbote/core",
   "version": "1.0.0",
-  "description": "Provider-agnostisches E-Mail-SDK — Typen, Fehler, Middleware-Pipeline",
+  "description": "Provider-agnostic transactional email core for TypeScript",
   "license": "MIT",
   "repository": {
     "type": "git",

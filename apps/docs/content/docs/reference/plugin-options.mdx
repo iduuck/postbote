@@ -1,0 +1,15 @@
+---
+title: Plugin Options
+description: Configuration options exposed by official Postbote plugins.
+---
+
+| Plugin | Options |
+| --- | --- |
+| `failover()` | `fallbacks`, optional `shouldFailover`, optional `onFailover` |
+| `hooks()` | optional `transformMessage`, `beforeSend`, `afterSend`, `onError` |
+| `logger()` | required `onEvent`, optional `capture: "none" \| "counts" \| "full"` |
+| `otel()` | optional `tracer`, `captureRecipients: "none" \| "count"` |
+| `reactEmail()` | optional `plainText` boolean |
+| `betterResult()` | no options |
+
+Read each plugin page for placement and behavior details. Plugin order is significant: the first plugin is outermost.

@@ -1,0 +1,31 @@
+---
+title: Plugins and Ordering
+description: Compose transforms, middleware, and send wrappers without surprising behavior.
+---
+
+Plugins can transform input, participate in the middleware pipeline, or wrap the entire send operation. The plugin tuple is ordered from **outer to inner**.
+
+```ts title="src/lib/mailer.ts"
+const mailer = createPostbote({
+  adapter: primary,
+  plugins: [
+    logger({ onEvent }),
+    otel({ tracer }),
+    failover({ fallbacks: [secondary] }),
+  ],
+});
+```
+
+In this example, logging and tracing observe one logical send. Failover is innermost, so it may call the adapter pipeline once per provider.
+
+## Input transforms
+
+Input-transform plugins run before normalization. `reactEmail()` adds a typed `body` field, renders it, and removes it before the provider sees the message. Preserve the plugin tuple with `as const` if you assign it to a variable, otherwise TypeScript intentionally loses extension-only input fields.
+
+## Middleware
+
+Middleware can inspect or replace `ctx.message`, change `ctx.adapter`, or call `next()`. A plugin behind failover runs once per attempt and must therefore be idempotent.
+
+## Send wrappers
+
+Only one plugin may define `wrapSend`. `betterResult()` is the current wrapper and changes the return type of `send()` from a rejecting promise to `Result<SendResult, PostboteError>`.

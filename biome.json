@@ -13,6 +13,9 @@
     "includes": [
       "**",
       "!**/dist",
+      "!**/.next",
+      "!**/.source",
+      "!apps/docs/app/styles.css",
       "!**/.turbo",
       "!**/coverage",
       "!**/.claude",

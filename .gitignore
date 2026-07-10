@@ -1,5 +1,7 @@
 node_modules
 dist
+.next
+.source
 .turbo
 coverage
 .env

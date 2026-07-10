@@ -1,0 +1,19 @@
+---
+title: OpenTelemetry
+description: Create one client span per logical send and event records for failed attempts.
+---
+
+```ts title="src/lib/tracing.ts"
+import { otel } from "@postbote/plugin-otel";
+
+const tracing = otel({
+  tracer: tracerProvider.getTracer("mail"),
+  captureRecipients: "count",
+});
+```
+
+The plugin creates a `postbote.send` client span. It records the adapter, message ID on success, attempt count, recipient count unless disabled, and a normalized error code on failure. Failed adapter attempts become `postbote.attempt` span events.
+
+Addresses, subject, and body content are never captured. When no tracer is supplied, the plugin uses `trace.getTracer("@postbote/plugin-otel")`; the OpenTelemetry API remains a no-op until an application registers a provider.
+
+Place `otel()` before `failover()` to trace the entire logical send.

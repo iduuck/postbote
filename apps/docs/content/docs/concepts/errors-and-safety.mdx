@@ -1,0 +1,39 @@
+---
+title: Errors and Safety
+description: Handle normalized failures and understand Postbote's input protections.
+---
+
+Every failure exposed by Postbote is a branded `PostboteError`. Check it with `isPostboteError()` rather than `instanceof`, which remains reliable across package boundaries.
+
+```ts title="src/emails/send-welcome.ts"
+import { isPostboteError } from "@postbote/core";
+
+try {
+  await mailer.send(message);
+} catch (error) {
+  if (isPostboteError(error) && error.retryable) {
+    // Queue or retry according to your application policy.
+  }
+  throw error;
+}
+```
+
+| Code | Retryable by default | Meaning |
+| --- | --- | --- |
+| `ABORTED` | No | The `AbortSignal` was aborted |
+| `AUTH` | No | Provider authentication failed |
+| `CANCELLED` | No | A hooks plugin cancelled the send |
+| `INVALID_MESSAGE` | No | Message validation or rendering failed |
+| `RECIPIENT_REJECTED` | No | The provider rejected a recipient |
+| `RATE_LIMITED` | Yes | The provider rate-limited the request |
+| `PROVIDER_UNAVAILABLE` | Yes | Provider or network unavailable |
+| `TIMEOUT` | Yes | Request timed out |
+| `UNKNOWN` | No | An unmapped error occurred |
+
+## CRLF protection
+
+Before a message is sent, Postbote rejects carriage returns and line feeds in subject, header names and values, and address display names. This prevents email-header injection at the SDK boundary.
+
+## Secret redaction
+
+Official adapters map errors without copying request headers or API keys into `PostboteError.cause`. Keep the same rule in custom adapters.

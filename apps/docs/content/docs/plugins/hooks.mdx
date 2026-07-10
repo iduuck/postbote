@@ -1,0 +1,28 @@
+---
+title: Hooks
+description: Inspect, transform, audit, or cancel a send through lifecycle hooks.
+---
+
+```ts title="src/lib/mailer.ts"
+import { hooks } from "@postbote/plugin-hooks";
+
+const policy = hooks({
+  transformMessage: (message) => ({
+    ...message,
+    headers: { ...message.headers, "X-Campaign": "onboarding" },
+  }),
+  beforeSend: async (ctx, { cancel }) => {
+    if (await isSuppressed(ctx.message.to[0]?.email)) {
+      cancel("recipient is suppressed");
+    }
+  },
+  afterSend: (_ctx, result) => audit(result.messageId),
+  onError: (_ctx, error) => report(error.code),
+});
+```
+
+`transformMessage` receives a normalized message and must return message input. Postbote normalizes that return value again, including CRLF protection.
+
+`beforeSend` can alter `ctx.message` or `ctx.adapter`. `cancel(reason)` stops delivery with a non-retryable `CANCELLED` error. Errors from `afterSend` and `onError` are intentionally ignored so observation code cannot change delivery.
+
+Place hooks outside failover to run them once per logical send. Place them inside failover only when the hook must run for every provider attempt.

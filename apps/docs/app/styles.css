@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/vitepress.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+:root {
+  --postbote-red: oklch(0.56 0.19 30);
+
+  @apply antialiased;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--postbote-red) 20%, transparent);
+}
+
+[data-theme="dark"] {
+  --postbote-red: oklch(0.68 0.17 30);
+}

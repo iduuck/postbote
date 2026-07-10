@@ -1,0 +1,22 @@
+---
+title: Plugin Overview
+description: Add cross-cutting behavior without coupling your application to a provider.
+---
+
+Plugins are optional packages that extend Postbote at three distinct points.
+
+| Plugin | Capability | Use it for |
+| --- | --- | --- |
+| `hooks()` | Middleware | Policy checks, message changes, lifecycle callbacks |
+| `failover()` | Middleware | Switching to fallback adapters |
+| `logger()` | Middleware | JSON-safe lifecycle events |
+| `otel()` | Middleware | OpenTelemetry spans and attempt events |
+| `reactEmail()` | Input transform | Rendering a `ReactElement` to HTML and text |
+| `betterResult()` | Send wrapper | Returning `Result` instead of rejecting |
+
+All plugins are explicit. Install only the capability you need and keep them in a tuple when their type extension matters.
+
+```ts title="src/lib/mailer.ts"
+const plugins = [reactEmail(), betterResult()] as const;
+const mailer = createPostbote({ adapter, plugins });
+```

@@ -1,7 +1,7 @@
 {
   "name": "@postbote/plugin-failover",
   "version": "1.0.0",
-  "description": "Failover-Middleware für Postbote — automatisches Ausweichen auf Fallback-Adapter",
+  "description": "Failover middleware for Postbote with ordered fallback adapters",
   "license": "MIT",
   "repository": {
     "type": "git",
