@@ -4,7 +4,7 @@ export type PostboteLogEvent =
   | {
       type: "send:start";
       provider: string;
-      toCount: number;
+      toCount?: number;
       timestamp: number;
       to?: string[];
     }
@@ -46,8 +46,8 @@ export function logger(options: LoggerOptions): Middleware {
     const startEvent: PostboteLogEvent = {
       type: "send:start",
       provider: ctx.adapter.name,
-      toCount: capture === "none" ? 0 : toCount,
       timestamp: start,
+      ...(capture === "none" ? {} : { toCount }),
       ...(capture === "full" ? { to: ctx.message.to.map((a) => a.email) } : {}),
     };
 

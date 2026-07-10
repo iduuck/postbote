@@ -1,4 +1,4 @@
-import { createPostbote, PostboteError } from "@postbote/core";
+import { createPostbote, type SendContext } from "@postbote/core";
 import { failover } from "@postbote/plugin-failover";
 import { createTestAdapter } from "@postbote/testing";
 import { describe, expect, it, vi } from "vitest";
@@ -23,7 +23,10 @@ describe("logger", () => {
     });
     expect(events.length).toBe(2);
     expect(events[0]).toMatchObject({ type: "send:start", provider: "test" });
+    expect(events[0]).toMatchObject({ toCount: 1 });
+    expect(events[0]).not.toHaveProperty("to");
     expect(events[1]).toMatchObject({ type: "send:success", provider: "test" });
+    expect(JSON.parse(JSON.stringify(events))).toEqual(events);
   });
 
   it("emits send:error and attempt:error on failure", async () => {
@@ -103,6 +106,29 @@ describe("logger", () => {
     expect(startEvent.to).toEqual(["t@t.com"]);
   });
 
+  it("omits recipient data when capture is none", async () => {
+    const events: unknown[] = [];
+    const pb = createPostbote({
+      adapter: createTestAdapter({ name: "test" }),
+      plugins: [
+        logger({
+          onEvent: (event) => events.push(event),
+          capture: "none",
+        }),
+      ],
+    });
+
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "s",
+      html: "<p>hi</p>",
+    });
+
+    expect(events[0]).not.toHaveProperty("toCount");
+    expect(events[0]).not.toHaveProperty("to");
+  });
+
   it("swallows onEvent errors", async () => {
     const pb = createPostbote({
       adapter: createTestAdapter({ name: "test" }),
@@ -121,5 +147,32 @@ describe("logger", () => {
       html: "<p>hi</p>",
     });
     expect(result.messageId).toBeTruthy();
+  });
+
+  it("serializes raw errors from next as UNKNOWN events", async () => {
+    const events: unknown[] = [];
+    const adapter = createTestAdapter({ name: "test" });
+    const ctx: SendContext = {
+      adapter,
+      attempts: [],
+      message: {
+        from: { email: "f@t.com" },
+        to: [{ email: "t@t.com" }],
+        subject: "s",
+        html: "<p>hi</p>",
+      },
+    };
+
+    await expect(
+      logger({ onEvent: (event) => events.push(event) })(ctx, async () => {
+        throw new Error("raw error");
+      }),
+    ).rejects.toThrow("raw error");
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: "send:error",
+        error: expect.objectContaining({ code: "UNKNOWN" }),
+      }),
+    );
   });
 });
