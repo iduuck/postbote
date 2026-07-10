@@ -1,4 +1,5 @@
 import { createPostbote } from "@postbote/core";
+import { failover } from "@postbote/plugin-failover";
 import { createTestAdapter } from "@postbote/testing";
 import type { ReactElement } from "react";
 import React from "react";
@@ -7,31 +8,26 @@ import { type ReactEmailExt, reactEmail } from "./index.js";
 
 const adapter = createTestAdapter({ name: "test" });
 
-type SendInput<P> = Parameters<
-  P extends { send: (...args: infer A) => unknown }
-    ? (...args: A) => unknown
-    : never
->[0];
-
-function bodyStr<T>(_x: T): void {}
+type Property<T, K extends PropertyKey> = K extends keyof T ? T[K] : never;
 
 describe("reactEmail types", () => {
   it("plugins: [reactEmail()] enables body: ReactElement", () => {
     const pb = createPostbote({ adapter, plugins: [reactEmail()] });
     type Input = Parameters<typeof pb.send>[0];
-    type Base = { from: string; to: string; subject: string; html: string };
-    // Input extends Base + body: ReactElement | undefined
-    assertType<Input>(null as unknown as Base & { body: ReactElement });
+    type Body = Property<Input, "body">;
+    expectTypeOf<string>().not.toExtend<Body>();
   });
 
   it("body: string is not allowed", () => {
     const pb = createPostbote({ adapter, plugins: [reactEmail()] });
-    // @ts-expect-error body must be ReactElement, not string
+    type Input = Parameters<typeof pb.send>[0];
+    type Body = Property<Input, "body">;
+    expectTypeOf<Body>().toEqualTypeOf<ReactElement | undefined>();
     pb.send({
-      from: "f",
-      to: "t",
+      from: "f@t.com",
+      to: "t@t.com",
       subject: "s",
-      html: "<p>hi</p>",
+      // @ts-expect-error body must be a ReactElement, not a string
       body: "<h1>hi</h1>",
     });
   });
@@ -50,14 +46,32 @@ describe("reactEmail types", () => {
 
   it("without plugin, body is not allowed", () => {
     const pb = createPostbote({ adapter });
-    // @ts-expect-error body does not exist without reactEmail plugin
+    expectTypeOf(pb.send).parameter(0).not.toHaveProperty("body");
     pb.send({
-      from: "f",
-      to: "t",
+      from: "f@t.com",
+      to: "t@t.com",
       subject: "s",
       html: "<p>hi</p>",
+      // @ts-expect-error body requires reactEmail()
       body: React.createElement("h1"),
     });
+  });
+
+  it("preserves body when combined with failover", () => {
+    const fallback = createTestAdapter({ name: "fallback" });
+    const pb = createPostbote({
+      adapter,
+      plugins: [reactEmail(), failover({ fallbacks: [fallback] })],
+    });
+
+    assertType(
+      pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "s",
+        body: React.createElement("h1"),
+      }),
+    );
   });
 
   it("ReactEmailExt describes body as ReactElement", () => {

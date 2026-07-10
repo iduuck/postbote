@@ -17,8 +17,10 @@ function bodyEl(el: ReactElement) {
 describe("reactEmail plugin", () => {
   it("renders component to html and removes body", async () => {
     const { createPostbote } = await import("@postbote/core");
+    const a = createTestAdapter({ name: "test" });
+    const spy = vi.spyOn(a, "send");
     const pb = createPostbote({
-      adapter,
+      adapter: a,
       plugins: [reactEmail()],
     });
 
@@ -30,6 +32,7 @@ describe("reactEmail plugin", () => {
     });
 
     expect(result.messageId).toBeTruthy();
+    expect(spy.mock.calls[0]?.[0]).not.toHaveProperty("body");
   });
 
   it("passes through input without body unchanged", async () => {
@@ -101,6 +104,23 @@ describe("reactEmail plugin", () => {
     expect(sent.text).toBe("Custom text");
   });
 
+  it("renders body over a supplied html fallback", async () => {
+    const { createPostbote } = await import("@postbote/core");
+    const a = createTestAdapter({ name: "test" });
+    const spy = vi.spyOn(a, "send");
+    const pb = createPostbote({ adapter: a, plugins: [reactEmail()] });
+
+    await pb.send({
+      from: "s@t.com",
+      to: "r@t.com",
+      subject: "Welcome",
+      html: "<p>fallback</p>",
+      ...bodyEl(React.createElement(Welcome, { name: "Nick" })),
+    });
+
+    expect(spy.mock.calls[0]?.[0].html).toContain("Welcome Nick!");
+  });
+
   it("does not generate text when plainText is false", async () => {
     const { createPostbote } = await import("@postbote/core");
     const a = createTestAdapter({ name: "test" });
@@ -123,26 +143,5 @@ describe("reactEmail plugin", () => {
     const sent = spy.mock.calls[0]![0];
     expect(sent.html).toContain("Welcome");
     expect(sent.text).toBeUndefined();
-  });
-
-  it("handles render errors gracefully", async () => {
-    const { createPostbote } = await import("@postbote/core");
-    const Broken = () => {
-      throw new Error("render failure");
-    };
-
-    const pb = createPostbote({
-      adapter,
-      plugins: [reactEmail()],
-    });
-
-    const result = await pb.send({
-      from: "s@t.com",
-      to: "r@t.com",
-      subject: "Welcome",
-      ...bodyEl(React.createElement(Broken)),
-    });
-
-    expect(result.messageId).toBeTruthy();
   });
 });

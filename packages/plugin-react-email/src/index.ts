@@ -1,5 +1,4 @@
-import type { PluginObject } from "@postbote/core";
-import { toPostboteError } from "@postbote/core";
+import { type PluginObject, PostboteError } from "@postbote/core";
 import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 
@@ -29,20 +28,27 @@ export function reactEmail(
   return {
     name: "react-email",
     async transformInput(input) {
-      const body = (input as unknown as Record<string, unknown>).body;
+      const { body, ...message } = input;
       if (!body) return input;
 
       try {
-        const html = await render(body as ReactElement);
+        const html = await render(body);
         return {
-          ...input,
+          ...message,
           html,
-          ...(plainText && !input.text
-            ? { text: await render(body as ReactElement, { plainText: true }) }
+          ...(plainText && !message.text
+            ? { text: await render(body, { plainText: true }) }
             : {}),
-        } as typeof input;
+        };
       } catch (err) {
-        throw toPostboteError(err, "plugin-react-email");
+        throw new PostboteError(
+          err instanceof Error ? err.message : "Failed to render email",
+          {
+            code: "INVALID_MESSAGE",
+            provider: "plugin-react-email",
+            cause: err,
+          },
+        );
       }
     },
   };
