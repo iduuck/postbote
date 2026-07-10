@@ -24,6 +24,10 @@ function extPlugin<TExt extends Record<string, unknown>>(): PluginObject<TExt> {
   return { name: "ext" } as PluginObject<TExt>;
 }
 
+interface InterfaceExtension {
+  template?: string;
+}
+
 type SendInput<P> = Parameters<
   P extends { send: (...args: infer A) => unknown }
     ? (...args: A) => unknown
@@ -80,6 +84,11 @@ describe("plugin types", () => {
   it("PluginInputExt resolves correctly", () => {
     type Res = PluginInputExt<[PluginObject<{ body?: string }>]>;
     expectTypeOf<Res>().toMatchTypeOf<{ body?: string }>();
+  });
+
+  it("preserves extensions declared as interfaces", () => {
+    type Res = PluginInputExt<[PluginObject<InterfaceExtension>]>;
+    expectTypeOf<Res>().toEqualTypeOf<InterfaceExtension>();
   });
 
   it("bare Middleware in tuple does not change send return type", () => {

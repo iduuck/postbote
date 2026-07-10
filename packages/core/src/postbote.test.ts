@@ -94,6 +94,118 @@ describe("createPostbote", () => {
     expect(plugin).toHaveBeenCalledOnce();
   });
 
+  it("transforms input before validation", async () => {
+    const adapter = fakeAdapter();
+    const template: PluginObject = {
+      name: "template",
+      transformInput: async (input) => ({ ...input, text: "Rendered" }),
+    };
+    const pb = createPostbote({
+      adapter,
+      plugins: [template],
+    });
+
+    await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "S",
+    });
+
+    expect(adapter.send).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "Rendered" }),
+      { signal: undefined },
+    );
+  });
+
+  it("runs input transforms in plugin order", async () => {
+    const adapter = fakeAdapter();
+    const order: string[] = [];
+    const first: PluginObject = {
+      name: "first",
+      transformInput: (input) => {
+        order.push("first");
+        return { ...input, text: "first" };
+      },
+    };
+    const second: PluginObject = {
+      name: "second",
+      transformInput: (input) => {
+        order.push("second");
+        return { ...input, text: `${input.text}-second` };
+      },
+    };
+    const pb = createPostbote({
+      adapter,
+      plugins: [first, second],
+    });
+
+    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "S" });
+
+    expect(order).toEqual(["first", "second"]);
+    expect(adapter.send).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "first-second" }),
+      { signal: undefined },
+    );
+  });
+
+  it("normalizes transform errors before the adapter is called", async () => {
+    const adapter = fakeAdapter();
+    const pb = createPostbote({
+      adapter,
+      plugins: [
+        {
+          name: "broken",
+          transformInput: () => {
+            throw new Error("template failed");
+          },
+        },
+      ],
+    });
+
+    await expect(
+      pb.send({ from: "f@t.com", to: "t@t.com", subject: "S" }),
+    ).rejects.toMatchObject({ code: "UNKNOWN", provider: "postbote" });
+    expect(adapter.send).not.toHaveBeenCalled();
+  });
+
+  it("runs middleware from a plugin object", async () => {
+    const adapter = fakeAdapter();
+    const middleware = vi.fn(
+      async (_ctx: SendContext, next: () => Promise<SendResult>) => next(),
+    );
+    const pb = createPostbote({
+      adapter,
+      plugins: [{ name: "middleware", middleware }],
+    });
+
+    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "S", text: "B" });
+
+    expect(middleware).toHaveBeenCalledOnce();
+  });
+
+  it("supports mixed middleware and plugin objects", async () => {
+    const adapter = fakeAdapter();
+    const middleware = vi.fn(
+      async (_ctx: SendContext, next: () => Promise<SendResult>) => next(),
+    );
+    const template: PluginObject = {
+      name: "template",
+      transformInput: (input) => ({ ...input, text: "B" }),
+    };
+    const pb = createPostbote({
+      adapter,
+      plugins: [middleware, template],
+    });
+
+    await pb.send({ from: "f@t.com", to: "t@t.com", subject: "S" });
+
+    expect(middleware).toHaveBeenCalledOnce();
+    expect(adapter.send).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "B" }),
+      { signal: undefined },
+    );
+  });
+
   it("passes signal from SendOptions to adapter", async () => {
     const adapter = fakeAdapter();
     const pb = createPostbote({ adapter });
@@ -168,6 +280,43 @@ describe("createPostbote", () => {
       expect(result).toHaveProperty("wrapped", "error");
     });
 
+    it("wrapSend wraps transform errors", async () => {
+      const catcher = {
+        name: "catcher",
+        wrapSend: async (run: () => Promise<SendResult>) => {
+          try {
+            return await run();
+          } catch (err) {
+            return {
+              messageId: "",
+              provider: "test",
+              wrapped: (err as PostboteError).code,
+            };
+          }
+        },
+      } as PluginObject;
+      const pb = createPostbote({
+        adapter: fakeAdapter(),
+        plugins: [
+          catcher,
+          {
+            name: "broken",
+            transformInput: () => {
+              throw new Error("broken");
+            },
+          },
+        ],
+      });
+
+      const result = await pb.send({
+        from: "f@t.com",
+        to: "t@t.com",
+        subject: "S",
+      });
+
+      expect(result).toHaveProperty("wrapped", "UNKNOWN");
+    });
+
     it("two wrapSend plugins throw TypeError at creation", () => {
       const a = {
         name: "a",
@@ -182,7 +331,7 @@ describe("createPostbote", () => {
           adapter: fakeAdapter(),
           plugins: [a, b],
         }),
-      ).toThrow(TypeError);
+      ).toThrow(/a, b/);
     });
 
     it("without wrapSend, behavior is unchanged", async () => {

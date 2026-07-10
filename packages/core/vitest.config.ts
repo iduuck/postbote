@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       include: ["src/**"],
-      exclude: ["src/index.ts"],
+      exclude: ["src/index.ts", "src/**/*.test-d.ts", "src/types.ts"],
       reporter: ["text", "lcov"],
       thresholds: {
         statements: 95,
