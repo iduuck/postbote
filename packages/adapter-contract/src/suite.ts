@@ -21,7 +21,10 @@ export interface AdapterContractOptions {
     reset(): void;
   };
   skip?: FailureKind[];
+  /** Some transports generate their message ID client-side. */
+  skipMessageIdEquality?: boolean;
   secret?: string;
+  retryAfterMs?: number;
 }
 
 const expectedCode: Record<FailureKind, ErrorCode> = {
@@ -62,7 +65,9 @@ export function runAdapterContractTests(opts: AdapterContractOptions): void {
           const result = await adapter.send(message);
 
           expect(result).toBeDefined();
-          expect(result.messageId).toBe(messageId);
+          if (!opts.skipMessageIdEquality) {
+            expect(result.messageId).toBe(messageId);
+          }
           expect(result.provider).toBe(adapter.name);
           expect(result.raw).toBeDefined();
         });
@@ -104,6 +109,9 @@ export function runAdapterContractTests(opts: AdapterContractOptions): void {
           expect(err.retryable).toBe(expectedRetryable[kind]);
           expect(err.provider).toBe(adapter.name);
           expect(err.cause).toBeDefined();
+          if (kind === "rateLimited" && opts.retryAfterMs !== undefined) {
+            expect(err.retryAfterMs).toBe(opts.retryAfterMs);
+          }
         });
       }
 

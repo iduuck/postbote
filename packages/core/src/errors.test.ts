@@ -86,6 +86,15 @@ describe("PostboteError", () => {
     });
     expect(err.cause).toBe(cause);
   });
+
+  it("preserves retry-after metadata", () => {
+    const err = new PostboteError("slow down", {
+      code: "RATE_LIMITED",
+      provider: "p",
+      retryAfterMs: 7_000,
+    });
+    expect(err.retryAfterMs).toBe(7_000);
+  });
 });
 
 describe("toPostboteError", () => {

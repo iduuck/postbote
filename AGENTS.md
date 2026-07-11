@@ -15,7 +15,9 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-postmark-http` | fetch-based Postmark adapter, 0 SDK deps, edge-compatible |
 | `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |
 | `packages/adapter-sendgrid-http` | fetch-based SendGrid adapter, 0 SDK deps, edge-compatible |
+| `packages/adapter-smtp` | Node-only Nodemailer SMTP adapter for any SMTP provider, pooled by default |
 | `packages/plugin-failover` | Middleware-plugin — automatisches Failover auf Fallback-Adapter bei Provider-Ausfällen (`failover()`, `FailoverExhaustedError`) |
+| `packages/plugin-retry` | Middleware-plugin — Wiederholungen auf demselben Adapter mit Exponential Backoff, Jitter und abortierbaren Delays (`retry()`) |
 | `packages/plugin-hooks` | Lifecycle hooks, validated message payload transforms, and policy cancellation via `CANCELLED` |
 | `packages/plugin-logger` | Structured, JSON-safe send and attempt lifecycle events |
 | `packages/plugin-otel` | OpenTelemetry client spans and attempt events per logical send |

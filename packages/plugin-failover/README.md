@@ -45,11 +45,24 @@ plugins: [logging, metrics, failover({ fallbacks: [...] })]
 plugins: [failover({ fallbacks: [...] }), perAttemptPlugin]
 ```
 
+### Retry Composition
+
+```ts
+// Recommended: retry each provider before switching to a fallback.
+plugins: [failover({ fallbacks: [postmark] }), retry({ maxAttempts: 3 })]
+
+// Retry the complete failover chain after every provider has failed.
+plugins: [retry({ maxAttempts: 3 }), failover({ fallbacks: [postmark] })]
+```
+
+`FailoverExhaustedError` is retryable, so the second composition deliberately
+retries the complete chain.
+
 ## API
 
 ### `failover(options)`
 
-| Option | Typ | Default | Beschreibung |
+| Option | Type | Default | Description |
 |---|---|---|---|
 | `fallbacks` | `Adapter[]` | - | Fallback adapters in priority order |
 | `shouldFailover?` | `(error, ctx) => boolean` | `(e) => e.retryable` | Decides whether an error should try the next adapter |

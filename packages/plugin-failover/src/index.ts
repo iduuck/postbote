@@ -58,7 +58,7 @@ function safeCall(
     try {
       fn(info);
     } catch {
-      // Observable-Hooks sind nicht-kritisch — Fehler werden still geschluckt
+      // Observability hooks must not change delivery behavior.
     }
   }
 }
@@ -72,7 +72,8 @@ export function failover<const TFallbacks extends readonly Adapter[]>(
     options.shouldFailover ?? ((e: PostboteError) => e.retryable);
 
   return async (ctx, next) => {
-    const chain = [ctx.adapter, ...options.fallbacks];
+    const primary = ctx.adapter;
+    const chain = [primary, ...options.fallbacks];
     let lastError: PostboteError | undefined;
 
     for (let i = 0; i < chain.length; i++) {
@@ -97,6 +98,8 @@ export function failover<const TFallbacks extends readonly Adapter[]>(
       }
     }
 
+    // An outer retry must begin with the primary adapter again.
+    ctx.adapter = primary;
     throw new FailoverExhaustedError(ctx.attempts, { cause: lastError });
   };
 }

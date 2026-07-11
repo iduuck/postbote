@@ -1,13 +1,15 @@
 {
-  "name": "@postbote/plugin-retry",
+  "name": "@postbote/adapter-smtp",
   "version": "1.0.0",
-  "description": "Retry middleware for Postbote with exponential backoff",
+  "description": "Node.js SMTP adapter for Postbote using Nodemailer",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iduuck/postbote.git",
-    "directory": "packages/plugin-retry"
+    "directory": "packages/adapter-smtp"
   },
+  "homepage": "https://github.com/iduuck/postbote#readme",
+  "bugs": "https://github.com/iduuck/postbote/issues",
   "type": "module",
   "sideEffects": false,
   "engines": {
@@ -26,20 +28,25 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage --passWithNoTests"
+    "test": "vitest run --passWithNoTests"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
+  "dependencies": {
+    "@types/nodemailer": "^8.0.1",
+    "@types/node": "^20.19.0",
+    "nodemailer": "^9.0.3"
+  },
   "peerDependencies": {
     "@postbote/core": "workspace:^"
   },
   "devDependencies": {
+    "@postbote/adapter-contract": "workspace:^",
     "@postbote/core": "workspace:^",
-    "@postbote/plugin-failover": "workspace:^",
-    "@postbote/testing": "workspace:^",
+    "@types/smtp-server": "^3.5.13",
+    "smtp-server": "^3.19.2",
     "vitest": "^3"
   }
 }

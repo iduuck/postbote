@@ -1,0 +1,175 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toSmtpPayload > maps full 1`] = `
+{
+  "attachments": [
+    {
+      "content": "SGVsbG8gV29ybGQ=",
+      "contentType": "text/plain",
+      "encoding": "base64",
+      "filename": "readme.txt",
+    },
+    {
+      "content": {
+        "data": [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+        ],
+        "type": "Buffer",
+      },
+      "contentType": "image/png",
+      "filename": "photo.png",
+    },
+  ],
+  "bcc": [
+    {
+      "address": "bcc@example.com",
+    },
+  ],
+  "cc": [
+    {
+      "address": "cc@example.com",
+      "name": "CC Person",
+    },
+  ],
+  "from": {
+    "address": "max@example.com",
+    "name": "Max Muster",
+  },
+  "headers": {
+    "X-Custom-Header": "custom-value",
+    "X-Postbote-Tag-campaign": "onboarding",
+    "X-Postbote-Tag-environment": "test",
+    "X-Priority": "high",
+  },
+  "html": "<p>Grüße aus Köln!</p>",
+  "replyTo": {
+    "address": "noreply@example.com",
+  },
+  "subject": "Grüße aus Köln — wichtige Informationen",
+  "text": undefined,
+  "to": [
+    {
+      "address": "anna@example.com",
+      "name": "Anna Beispiel",
+    },
+  ],
+}
+`;
+
+exports[`toSmtpPayload > maps htmlOnly 1`] = `
+{
+  "attachments": undefined,
+  "bcc": undefined,
+  "cc": undefined,
+  "from": {
+    "address": "sender@example.com",
+  },
+  "headers": undefined,
+  "html": "<h1>Hello</h1><p>This is HTML content.</p>",
+  "replyTo": undefined,
+  "subject": "HTML Only",
+  "text": undefined,
+  "to": [
+    {
+      "address": "recipient@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSmtpPayload > maps manyRecipients 1`] = `
+{
+  "attachments": undefined,
+  "bcc": [
+    {
+      "address": "bcc1@example.com",
+    },
+    {
+      "address": "bcc2@example.com",
+    },
+  ],
+  "cc": [
+    {
+      "address": "cc1@example.com",
+    },
+    {
+      "address": "cc2@example.com",
+    },
+  ],
+  "from": {
+    "address": "sender@example.com",
+  },
+  "headers": undefined,
+  "html": undefined,
+  "replyTo": undefined,
+  "subject": "Many Recipients",
+  "text": "This message has many recipients.",
+  "to": [
+    {
+      "address": "r1@example.com",
+    },
+    {
+      "address": "r2@example.com",
+    },
+    {
+      "address": "r3@example.com",
+    },
+    {
+      "address": "r4@example.com",
+      "name": "Fourth Recipient",
+    },
+    {
+      "address": "r5@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSmtpPayload > maps minimal 1`] = `
+{
+  "attachments": undefined,
+  "bcc": undefined,
+  "cc": undefined,
+  "from": {
+    "address": "sender@example.com",
+  },
+  "headers": undefined,
+  "html": undefined,
+  "replyTo": undefined,
+  "subject": "Hello World",
+  "text": "This is a plain text body.",
+  "to": [
+    {
+      "address": "recipient@example.com",
+    },
+  ],
+}
+`;
+
+exports[`toSmtpPayload > maps textOnly 1`] = `
+{
+  "attachments": undefined,
+  "bcc": undefined,
+  "cc": undefined,
+  "from": {
+    "address": "sender@example.com",
+  },
+  "headers": undefined,
+  "html": undefined,
+  "replyTo": undefined,
+  "subject": "Text Only",
+  "text": "This is only text.",
+  "to": [
+    {
+      "address": "recipient@example.com",
+    },
+  ],
+}
+`;

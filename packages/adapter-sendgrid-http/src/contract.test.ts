@@ -11,6 +11,7 @@ interface MockState {
   status?: number;
   body?: Record<string, unknown>;
   delayMs?: number;
+  headers?: Record<string, string>;
   networkError?: boolean;
 }
 
@@ -27,9 +28,11 @@ const handlers = [
     const messageId = state.body?.id as string | undefined;
     return HttpResponse.json(state.body ?? {}, {
       status: state.status ?? 202,
-      headers: messageId
-        ? { "X-Message-Id": messageId, "content-type": "application/json" }
-        : { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...state.headers,
+        ...(messageId ? { "X-Message-Id": messageId } : {}),
+      },
     });
   }),
 ];
@@ -51,6 +54,7 @@ function getFailureResponse(kind: FailureKind): MockState {
         status: 429,
         body: { errors: [{ message: "Too many requests" }] },
         delayMs: 0,
+        headers: { "Retry-After": "7" },
       };
     case "unavailable":
       return {
@@ -97,6 +101,7 @@ runAdapterContractTests({
     },
   },
   secret: "SG.test_123456789",
+  retryAfterMs: 7_000,
   skip: ["recipientRejected"],
 });
 

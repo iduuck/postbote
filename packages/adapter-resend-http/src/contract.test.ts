@@ -11,6 +11,7 @@ interface MockState {
   status: number;
   body: Record<string, unknown>;
   delayMs: number;
+  headers?: Record<string, string>;
   networkError?: boolean;
 }
 
@@ -24,7 +25,10 @@ const handlers = [
     if (state.delayMs > 0) {
       await delay(state.delayMs);
     }
-    return HttpResponse.json(state.body, { status: state.status });
+    return HttpResponse.json(state.body, {
+      status: state.status,
+      headers: state.headers,
+    });
   }),
 ];
 
@@ -43,6 +47,7 @@ function getFailureResponse(kind: FailureKind): MockState {
         status: 429,
         body: { name: "rate_limit_exceeded", message: "Too many requests" },
         delayMs: 0,
+        headers: { "Retry-After": "7" },
       };
     case "unavailable":
       return {
@@ -94,6 +99,7 @@ runAdapterContractTests({
     },
   },
   secret: "re_test_123456789",
+  retryAfterMs: 7_000,
   skip: ["recipientRejected"],
 });
 

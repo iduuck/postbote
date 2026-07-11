@@ -22,13 +22,11 @@ export function retry(options: RetryOptions = {}): Middleware {
   }
 
   return async (ctx, next) => {
-    let lastError: PostboteError | undefined;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (let attempt = 1; ; attempt++) {
       try {
         return await next();
       } catch (err) {
         const error = toPostboteError(err, ctx.adapter.name);
-        lastError = error;
         if (
           attempt === maxAttempts ||
           !(options.retryIf ?? ((e) => e.retryable))(error, ctx)
@@ -44,7 +42,6 @@ export function retry(options: RetryOptions = {}): Middleware {
         await sleep(delayMs, ctx.signal);
       }
     }
-    throw lastError!;
   };
 }
 

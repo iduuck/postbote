@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "@postbote/core": "workspace:^",
-    "@postbote/plugin-failover": "workspace:^"
+    "@postbote/plugin-failover": "workspace:^",
+    "@postbote/plugin-retry": "workspace:^"
   },
   "devDependencies": {
     "@postbote/testing": "workspace:^",
