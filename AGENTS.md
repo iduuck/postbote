@@ -53,6 +53,8 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 
 **IMPORTANT:** Before a commit that touches CI gates (`.github/`, `scripts/`), run all three script-based gates **locally** first (`quality`, `smoke`, `ts-compat`). These scripts have historically shipped with trivial bugs that 100 % fail in CI — always verify before pushing.
 
+**Commit messages:** Use Conventional Commits with a package scope, for example `feat(plugin-retry): add retry-after support` or `fix(adapter-mailgun-http): map recipient rejections`. Do not use unscoped messages such as `feat: ...`.
+
 ## Non-negotiable conventions
 
 - **ESM-only**, Node ≥ 20.19; `platform: 'neutral'` — no `node:` imports, no `Buffer`
