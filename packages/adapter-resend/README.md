@@ -1,5 +1,7 @@
 # @postbote/adapter-resend
 
+`apiKey` is optional when `RESEND_API_KEY` is available. The explicit option takes precedence; an injected client does not require a key.
+
 Postbote adapter for [Resend](https://resend.com) — native `resend` SDK.
 
 ## Installation

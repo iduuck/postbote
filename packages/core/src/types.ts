@@ -42,7 +42,10 @@ export interface EmailMessageInput {
 
 export interface SendOptions {
   signal?: AbortSignal;
+  idempotencyKey?: string;
 }
+
+export type AdapterSendOptions = SendOptions;
 
 export interface SendResult<TProvider extends string = string> {
   messageId: string;
@@ -54,8 +57,22 @@ export interface Adapter<TName extends string = string> {
   readonly name: TName;
   send(
     message: EmailMessage,
-    options?: SendOptions,
+    options?: AdapterSendOptions,
   ): Promise<SendResult<TName>>;
+  sendBatch?(
+    messages: EmailMessage[],
+    options?: AdapterSendOptions,
+  ): Promise<BatchItemResult<TName>[]>;
+}
+
+export type BatchItemResult<TProvider extends string = string> =
+  | { status: "sent"; result: SendResult<TProvider> }
+  | { status: "failed"; error: PostboteError };
+
+export interface BatchResult<TProvider extends string = string> {
+  results: BatchItemResult<TProvider>[];
+  sentCount: number;
+  failedCount: number;
 }
 
 export type AdapterName<TAdapter extends Adapter = Adapter> =

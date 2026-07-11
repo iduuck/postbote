@@ -29,6 +29,7 @@ export class PostboteError extends Error {
   readonly retryable: boolean;
   readonly provider: string;
   readonly cause?: unknown;
+  readonly retryAfterMs?: number;
 
   constructor(
     message: string,
@@ -37,6 +38,7 @@ export class PostboteError extends Error {
       provider: string;
       retryable?: boolean;
       cause?: unknown;
+      retryAfterMs?: number;
     },
   ) {
     super(message, { cause: opts.cause });
@@ -45,6 +47,7 @@ export class PostboteError extends Error {
     this.provider = opts.provider;
     this.retryable = opts.retryable ?? DEFAULT_RETRYABLE[opts.code];
     this.cause = opts.cause;
+    this.retryAfterMs = opts.retryAfterMs;
   }
 }
 

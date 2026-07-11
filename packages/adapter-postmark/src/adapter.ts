@@ -6,7 +6,7 @@ import { toPostboteErrorFromSdkError } from "./errors.js";
 import { toPostmarkSdkPayload } from "./map.js";
 
 export interface PostmarkOptions {
-  serverToken: string;
+  serverToken?: string;
   client?: {
     sendEmail: (email: Message) => ReturnType<ServerClient["sendEmail"]>;
   };
@@ -15,9 +15,16 @@ export interface PostmarkOptions {
 }
 
 export function postmark(options: PostmarkOptions) {
+  const serverToken =
+    options.serverToken ?? readEnvironment("POSTMARK_SERVER_TOKEN");
+  if (!options.client && !serverToken) {
+    throw new TypeError(
+      "Postmark server token is required (serverToken or POSTMARK_SERVER_TOKEN)",
+    );
+  }
   const sdkClient =
     options.client ??
-    new ServerClient(options.serverToken, {
+    new ServerClient(serverToken!, {
       ...(options.timeoutMs !== undefined
         ? { timeout: options.timeoutMs / 1000 }
         : {}),
@@ -42,4 +49,10 @@ export function postmark(options: PostmarkOptions) {
   };
 
   return defineAdapter(spec);
+}
+
+function readEnvironment(name: string): string | undefined {
+  return (
+    globalThis as { process?: { env?: Record<string, string | undefined> } }
+  ).process?.env?.[name];
 }

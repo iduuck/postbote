@@ -1,5 +1,7 @@
 # @postbote/adapter-sendgrid-http
 
+`apiKey` is optional when `SENDGRID_API_KEY` is available. The explicit option takes precedence; construction throws if neither is set.
+
 Postbote adapter for [SendGrid](https://sendgrid.com) — HTTP via `fetch`, zero SDK dependencies, edge-compatible.
 
 ## Installation

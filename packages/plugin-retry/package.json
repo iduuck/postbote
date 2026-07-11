@@ -1,0 +1,16 @@
+{
+  "name": "@postbote/plugin-retry",
+  "version": "1.0.0",
+  "description": "Retry middleware for Postbote with exponential backoff",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/iduuck/postbote.git", "directory": "packages/plugin-retry" },
+  "type": "module",
+  "sideEffects": false,
+  "engines": { "node": ">=20.19" },
+  "files": ["dist"],
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }, "./package.json": "./package.json" },
+  "scripts": { "build": "tsdown", "typecheck": "tsc --noEmit", "test": "vitest run --passWithNoTests", "test:coverage": "vitest run --coverage --passWithNoTests" },
+  "publishConfig": { "access": "public", "provenance": true },
+  "peerDependencies": { "@postbote/core": "workspace:^" },
+  "devDependencies": { "@postbote/core": "workspace:^", "@postbote/testing": "workspace:^", "vitest": "^3" }
+}

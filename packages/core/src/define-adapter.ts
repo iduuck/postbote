@@ -4,7 +4,12 @@ import {
   PostboteError,
   toPostboteError,
 } from "./errors.js";
-import type { Adapter, EmailMessage, SendResult } from "./types.js";
+import type {
+  Adapter,
+  AdapterSendOptions,
+  EmailMessage,
+  SendResult,
+} from "./types.js";
 
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -21,7 +26,7 @@ export interface AdapterSpec<TName extends string = string> {
   name: TName;
   send(
     message: EmailMessage,
-    ctx: { signal?: AbortSignal },
+    options: AdapterSendOptions,
   ): Promise<{ messageId: string; raw?: unknown }>;
   mapUnknownError?: (err: unknown) => PostboteError | ErrorCode;
 }
@@ -43,7 +48,7 @@ export function defineAdapter<const TName extends string>(
     },
     async send(
       message: EmailMessage,
-      options?: { signal?: AbortSignal },
+      options?: AdapterSendOptions,
     ): Promise<SendResult<TName>> {
       if (options?.signal?.aborted) {
         const err = new PostboteError("Send aborted", {
@@ -54,9 +59,7 @@ export function defineAdapter<const TName extends string>(
       }
 
       try {
-        const result = await spec.send(message, {
-          signal: options?.signal,
-        });
+        const result = await spec.send(message, options ?? {});
 
         if (!result.messageId) {
           throw new PostboteError("Provider did not return a message ID", {

@@ -1,5 +1,7 @@
 # @postbote/adapter-sendgrid
 
+`apiKey` is optional when `SENDGRID_API_KEY` is available. The explicit option takes precedence; an injected client does not require a key.
+
 Postbote adapter for [SendGrid](https://sendgrid.com) — native `@sendgrid/mail` SDK.
 
 ## Installation

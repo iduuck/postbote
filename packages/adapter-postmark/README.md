@@ -1,5 +1,7 @@
 # @postbote/adapter-postmark
 
+`serverToken` is optional when `POSTMARK_SERVER_TOKEN` is available. The explicit option takes precedence; an injected client does not require a token.
+
 Postbote adapter for [Postmark](https://postmarkapp.com) — native `postmark` SDK.
 
 ## Installation

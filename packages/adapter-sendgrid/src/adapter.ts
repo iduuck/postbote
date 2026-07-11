@@ -15,11 +15,17 @@ interface SendGridClient {
 }
 
 export interface SendGridOptions {
-  apiKey: string;
+  apiKey?: string;
   client?: SendGridClient;
 }
 
 export function sendgrid(options: SendGridOptions) {
+  const apiKey = options.apiKey ?? readEnvironment("SENDGRID_API_KEY");
+  if (!options.client && !apiKey) {
+    throw new TypeError(
+      "SendGrid API key is required (apiKey or SENDGRID_API_KEY)",
+    );
+  }
   let client: SendGridClient;
 
   if (options.client) {
@@ -29,7 +35,7 @@ export function sendgrid(options: SendGridOptions) {
       setApiKey(key: string): void;
     };
     const mailService = new MailService();
-    mailService.setApiKey(options.apiKey);
+    mailService.setApiKey(apiKey!);
     client = mailService;
   }
 
@@ -57,4 +63,10 @@ export function sendgrid(options: SendGridOptions) {
   };
 
   return defineAdapter(spec);
+}
+
+function readEnvironment(name: string): string | undefined {
+  return (
+    globalThis as { process?: { env?: Record<string, string | undefined> } }
+  ).process?.env?.[name];
 }

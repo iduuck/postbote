@@ -6,7 +6,7 @@ import { toPostboteErrorFromSdkError } from "./errors.js";
 import { toResendSdkPayload } from "./map.js";
 
 export interface ResendOptions {
-  apiKey: string;
+  apiKey?: string;
   client?: {
     emails: {
       send(
@@ -26,7 +26,13 @@ type SendFn = (payload: unknown) => Promise<{
 }>;
 
 export function resend(options: ResendOptions) {
-  const client = options.client ?? new Resend(options.apiKey);
+  const apiKey = options.apiKey ?? readEnvironment("RESEND_API_KEY");
+  if (!options.client && !apiKey) {
+    throw new TypeError(
+      "Resend API key is required (apiKey or RESEND_API_KEY)",
+    );
+  }
+  const client = options.client ?? new Resend(apiKey!);
   const send: SendFn = client.emails.send.bind(client.emails) as SendFn;
 
   const spec: AdapterSpec<"resend"> = {
@@ -45,4 +51,10 @@ export function resend(options: ResendOptions) {
   };
 
   return defineAdapter(spec);
+}
+
+function readEnvironment(name: string): string | undefined {
+  return (
+    globalThis as { process?: { env?: Record<string, string | undefined> } }
+  ).process?.env?.[name];
 }

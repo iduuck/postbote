@@ -1,5 +1,7 @@
 # @postbote/adapter-postmark-http
 
+`serverToken` is optional when `POSTMARK_SERVER_TOKEN` is available. The explicit option takes precedence; construction throws if neither is set.
+
 Postbote adapter for [Postmark](https://postmarkapp.com) — HTTP via `fetch`, zero SDK dependencies, edge-compatible.
 
 ## Installation

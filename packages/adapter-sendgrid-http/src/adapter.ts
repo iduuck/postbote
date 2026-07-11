@@ -6,7 +6,7 @@ import {
 import { toSendGridPayload } from "./map.js";
 
 export interface SendGridHttpOptions {
-  apiKey: string;
+  apiKey?: string;
   baseUrl?: string;
   timeoutMs?: number;
   fetch?: typeof fetch;
@@ -18,6 +18,11 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 export function sendgridHttp(
   options: SendGridHttpOptions,
 ): Adapter<"sendgrid-http"> {
+  const apiKey = options.apiKey ?? readEnvironment("SENDGRID_API_KEY");
+  if (!apiKey)
+    throw new TypeError(
+      "SendGrid API key is required (apiKey or SENDGRID_API_KEY)",
+    );
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchFn = options.fetch ?? globalThis.fetch;
@@ -40,7 +45,7 @@ export function sendgridHttp(
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${options.apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify(payload),
           signal: combinedSignal,
@@ -64,4 +69,10 @@ export function sendgridHttp(
       };
     },
   });
+}
+
+function readEnvironment(name: string): string | undefined {
+  return (
+    globalThis as { process?: { env?: Record<string, string | undefined> } }
+  ).process?.env?.[name];
 }

@@ -6,7 +6,7 @@ import {
 import { toPostmarkPayload } from "./map.js";
 
 export interface PostmarkHttpOptions {
-  serverToken: string;
+  serverToken?: string;
   baseUrl?: string;
   timeoutMs?: number;
   fetch?: typeof fetch;
@@ -20,6 +20,12 @@ const DEFAULT_MESSAGE_STREAM = "outbound";
 export function postmarkHttp(
   options: PostmarkHttpOptions,
 ): Adapter<"postmark-http"> {
+  const serverToken =
+    options.serverToken ?? readEnvironment("POSTMARK_SERVER_TOKEN");
+  if (!serverToken)
+    throw new TypeError(
+      "Postmark server token is required (serverToken or POSTMARK_SERVER_TOKEN)",
+    );
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const messageStream = options.messageStream ?? DEFAULT_MESSAGE_STREAM;
@@ -44,7 +50,7 @@ export function postmarkHttp(
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            "X-Postmark-Server-Token": options.serverToken,
+            "X-Postmark-Server-Token": serverToken,
           },
           body: JSON.stringify(payload),
           signal: combinedSignal,
@@ -66,4 +72,10 @@ export function postmarkHttp(
       };
     },
   });
+}
+
+function readEnvironment(name: string): string | undefined {
+  return (
+    globalThis as { process?: { env?: Record<string, string | undefined> } }
+  ).process?.env?.[name];
 }

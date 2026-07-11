@@ -11,6 +11,7 @@ export interface SendContext {
   adapter: Adapter;
   attempts: SendAttempt[];
   signal?: AbortSignal;
+  idempotencyKey?: string;
 }
 
 export type Next = () => Promise<SendResult>;
@@ -31,6 +32,7 @@ export function compose(middlewares: Middleware[]) {
     try {
       const result = await ctx.adapter.send(ctx.message, {
         signal: ctx.signal,
+        idempotencyKey: ctx.idempotencyKey,
       });
       ctx.attempts.push({ adapter: ctx.adapter.name });
       return result;

@@ -1,5 +1,7 @@
 # @postbote/adapter-resend-http
 
+`apiKey` is optional when `RESEND_API_KEY` is available. The explicit option takes precedence; construction throws if neither is set.
+
 Postbote adapter for [Resend](https://resend.com) — HTTP via `fetch`, zero SDK dependencies, edge-compatible.
 
 ## Installation

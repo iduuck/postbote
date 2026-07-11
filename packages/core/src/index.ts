@@ -23,8 +23,11 @@ export { createPostbote } from "./postbote.js";
 export type {
   Adapter,
   AdapterName,
+  AdapterSendOptions,
   Address,
   Attachment,
+  BatchItemResult,
+  BatchResult,
   EmailMessage,
   EmailMessageInput,
   PluginObject,

@@ -20,7 +20,18 @@ export function toPostboteErrorFromResponse(
     code,
     provider: PROVIDER,
     cause: { status, body },
+    retryAfterMs:
+      code === "RATE_LIMITED" ? parseRetryAfter(response) : undefined,
   });
+}
+
+function parseRetryAfter(response: Response): number | undefined {
+  const value = response.headers.get("retry-after");
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - Date.now());
 }
 
 function isAbortError(err: unknown): boolean {
