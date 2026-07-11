@@ -1,0 +1,190 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toMailgunFormData > maps full 1`] = `
+[
+  [
+    "from",
+    "Max Muster <max@example.com>",
+  ],
+  [
+    "to",
+    "Anna Beispiel <anna@example.com>",
+  ],
+  [
+    "cc",
+    "CC Person <cc@example.com>",
+  ],
+  [
+    "bcc",
+    "bcc@example.com",
+  ],
+  [
+    "subject",
+    "Grüße aus Köln — wichtige Informationen",
+  ],
+  [
+    "html",
+    "<p>Grüße aus Köln!</p>",
+  ],
+  [
+    "h:Reply-To",
+    "noreply@example.com",
+  ],
+  [
+    "h:X-Custom-Header",
+    "custom-value",
+  ],
+  [
+    "h:X-Priority",
+    "high",
+  ],
+  [
+    "o:tag",
+    "onboarding",
+  ],
+  [
+    "o:tag",
+    "test",
+  ],
+  [
+    "attachment",
+    File {
+      Symbol(kHandle): Blob {},
+      Symbol(kLength): 11,
+      Symbol(kType): "text/plain",
+      Symbol(state): FileState {
+        "lastModified": 1783791063423,
+        "name": "readme.txt",
+      },
+    },
+  ],
+  [
+    "attachment",
+    File {
+      Symbol(kHandle): Blob {},
+      Symbol(kLength): 8,
+      Symbol(kType): "image/png",
+      Symbol(state): FileState {
+        "lastModified": 1783791063423,
+        "name": "photo.png",
+      },
+    },
+  ],
+]
+`;
+
+exports[`toMailgunFormData > maps htmlOnly 1`] = `
+[
+  [
+    "from",
+    "sender@example.com",
+  ],
+  [
+    "to",
+    "recipient@example.com",
+  ],
+  [
+    "subject",
+    "HTML Only",
+  ],
+  [
+    "html",
+    "<h1>Hello</h1><p>This is HTML content.</p>",
+  ],
+]
+`;
+
+exports[`toMailgunFormData > maps manyRecipients 1`] = `
+[
+  [
+    "from",
+    "sender@example.com",
+  ],
+  [
+    "to",
+    "r1@example.com",
+  ],
+  [
+    "to",
+    "r2@example.com",
+  ],
+  [
+    "to",
+    "r3@example.com",
+  ],
+  [
+    "to",
+    "Fourth Recipient <r4@example.com>",
+  ],
+  [
+    "to",
+    "r5@example.com",
+  ],
+  [
+    "cc",
+    "cc1@example.com",
+  ],
+  [
+    "cc",
+    "cc2@example.com",
+  ],
+  [
+    "bcc",
+    "bcc1@example.com",
+  ],
+  [
+    "bcc",
+    "bcc2@example.com",
+  ],
+  [
+    "subject",
+    "Many Recipients",
+  ],
+  [
+    "text",
+    "This message has many recipients.",
+  ],
+]
+`;
+
+exports[`toMailgunFormData > maps minimal 1`] = `
+[
+  [
+    "from",
+    "sender@example.com",
+  ],
+  [
+    "to",
+    "recipient@example.com",
+  ],
+  [
+    "subject",
+    "Hello World",
+  ],
+  [
+    "text",
+    "This is a plain text body.",
+  ],
+]
+`;
+
+exports[`toMailgunFormData > maps textOnly 1`] = `
+[
+  [
+    "from",
+    "sender@example.com",
+  ],
+  [
+    "to",
+    "recipient@example.com",
+  ],
+  [
+    "subject",
+    "Text Only",
+  ],
+  [
+    "text",
+    "This is only text.",
+  ],
+]
+`;

@@ -11,6 +11,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-contract` | Contract test suite (`runAdapterContractTests`) — every adapter must pass it |
 | `packages/adapter-resend` | Native Resend SDK adapter (SDK injectable via `client?` option) |
 | `packages/adapter-resend-http` | fetch-based adapter, 0 SDK dependencies, edge-compatible |
+| `packages/adapter-mailgun-http` | fetch-based Mailgun adapter, 0 SDK dependencies, edge-compatible |
 | `packages/adapter-postmark` | Postmark native SDK adapter (`client?` injectable) |
 | `packages/adapter-postmark-http` | fetch-based Postmark adapter, 0 SDK deps, edge-compatible |
 | `packages/adapter-sendgrid` | SendGrid native `@sendgrid/mail` SDK adapter (`client?` injectable) |

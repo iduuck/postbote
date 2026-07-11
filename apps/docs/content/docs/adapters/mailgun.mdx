@@ -1,0 +1,22 @@
+---
+title: Mailgun
+description: Send transactional email through Mailgun's HTTP API.
+---
+
+```bash
+pnpm add @postbote/core @postbote/adapter-mailgun-http
+```
+
+```ts
+import { createPostbote } from "@postbote/core";
+import { mailgunHttp } from "@postbote/adapter-mailgun-http";
+
+const postbote = createPostbote({
+  adapter: mailgunHttp({
+    domain: "mg.example.com",
+    apiKey: process.env.MAILGUN_API_KEY,
+  }),
+});
+```
+
+Pass `baseUrl: "https://api.eu.mailgun.net"` for a Mailgun EU-region account.

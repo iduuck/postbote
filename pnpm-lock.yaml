@@ -194,6 +194,21 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
 
+  packages/adapter-mailgun-http:
+    devDependencies:
+      '@postbote/adapter-contract':
+        specifier: workspace:^
+        version: link:../adapter-contract
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      msw:
+        specifier: ^2
+        version: 2.14.6(@types/node@26.1.1)(typescript@5.9.3)
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
+
   packages/adapter-postmark:
     dependencies:
       postmark:

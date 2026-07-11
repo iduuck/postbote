@@ -1,0 +1,46 @@
+{
+  "name": "@postbote/adapter-mailgun-http",
+  "version": "1.0.0",
+  "description": "Postbote adapter for Mailgun using HTTP and fetch",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iduuck/postbote.git",
+    "directory": "packages/adapter-mailgun-http"
+  },
+  "homepage": "https://github.com/iduuck/postbote#readme",
+  "bugs": "https://github.com/iduuck/postbote/issues",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "@postbote/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@postbote/adapter-contract": "workspace:^",
+    "@postbote/core": "workspace:^",
+    "msw": "^2",
+    "vitest": "^3"
+  }
+}
