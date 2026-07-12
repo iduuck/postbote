@@ -1,0 +1,17 @@
+{
+  "name": "@postbote/example-staging-safety",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@postbote/core": "workspace:^",
+    "@postbote/plugin-dry-run": "workspace:^",
+    "@postbote/plugin-redirect": "workspace:^",
+    "@postbote/testing": "workspace:^"
+  },
+  "devDependencies": {
+    "vitest": "^3"
+  }
+}
