@@ -19,6 +19,9 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 | `packages/adapter-smtp` | Node-only Nodemailer SMTP adapter for any SMTP provider, pooled by default |
 | `packages/plugin-failover` | Middleware-plugin — automatisches Failover auf Fallback-Adapter bei Provider-Ausfällen (`failover()`, `FailoverExhaustedError`) |
 | `packages/plugin-retry` | Middleware-plugin — Wiederholungen auf demselben Adapter mit Exponential Backoff, Jitter und abortierbaren Delays (`retry()`) |
+| `packages/plugin-rate-limit` | Client-side token-bucket throttling middleware (`rateLimit()`) |
+| `packages/plugin-dry-run` | Short-circuits sends for staging and CI (`dryRun()`) |
+| `packages/plugin-redirect` | Redirects recipients safely for staging (`redirect()`) |
 | `packages/plugin-hooks` | Lifecycle hooks, validated message payload transforms, and policy cancellation via `CANCELLED` |
 | `packages/plugin-logger` | Structured, JSON-safe send and attempt lifecycle events |
 | `packages/plugin-otel` | OpenTelemetry client spans and attempt events per logical send |
@@ -53,7 +56,7 @@ One core (`@postbote/core`), provider adapters as separate packages, cross-cutti
 
 **IMPORTANT:** Before a commit that touches CI gates (`.github/`, `scripts/`), run all three script-based gates **locally** first (`quality`, `smoke`, `ts-compat`). These scripts have historically shipped with trivial bugs that 100 % fail in CI — always verify before pushing.
 
-**Commit messages:** Use Conventional Commits with a package scope, for example `feat(plugin-retry): add retry-after support` or `fix(adapter-mailgun-http): map recipient rejections`. Do not use unscoped messages such as `feat: ...`.
+**Commit messages:** Use Conventional Commits with one package scope per commit, for example `feat(plugin-retry): add retry-after support` or `fix(adapter-mailgun-http): map recipient rejections`. Split changes that affect multiple packages into separate commits. Do not use unscoped messages such as `feat: ...`.
 
 ## Non-negotiable conventions
 
