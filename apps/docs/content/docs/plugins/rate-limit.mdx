@@ -1,0 +1,21 @@
+---
+title: Rate Limit
+description: Throttle outbound messages locally with a token bucket.
+---
+
+```bash
+pnpm add @postbote/plugin-rate-limit
+```
+
+```ts
+import { rateLimit } from "@postbote/plugin-rate-limit";
+
+const mailer = createPostbote({
+  adapter,
+  plugins: [rateLimit({ tokens: 10, intervalMs: 1_000 })],
+});
+```
+
+The bucket starts full, allowing a burst of `tokens` sends. Later sends wait for continuous token refills. Set `mode: "reject"` to immediately throw a retryable `RATE_LIMITED` error instead. Waiting observes the send's `AbortSignal`.
+
+Place rate limiting outside `failover()` to limit logical sends. Put it inside failover only when each provider attempt should consume a token.

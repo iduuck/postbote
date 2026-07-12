@@ -9,6 +9,9 @@ Plugins are optional packages that extend Postbote at three distinct points.
 | --- | --- | --- |
 | `hooks()` | Middleware | Policy checks, message changes, lifecycle callbacks |
 | `failover()` | Middleware | Switching to fallback adapters |
+| `rateLimit()` | Middleware | Client-side throttling before a provider returns 429 |
+| `dryRun()` | Middleware | Staging and CI sends without calling an adapter |
+| `redirect()` | Middleware | Replacing real recipients in staging |
 | `logger()` | Middleware | JSON-safe lifecycle events |
 | `otel()` | Middleware | OpenTelemetry spans and attempt events |
 | `reactEmail()` | Input transform | Rendering a `ReactElement` to HTML and text |

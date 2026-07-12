@@ -1,0 +1,21 @@
+---
+title: Dry Run
+description: Preview sends in staging or CI without calling an adapter.
+---
+
+```bash
+pnpm add @postbote/plugin-dry-run
+```
+
+```ts
+import { dryRun } from "@postbote/plugin-dry-run";
+
+const mailer = createPostbote({
+  adapter,
+  plugins: [dryRun({ enabled: process.env.MAIL_DRY_RUN === "1" })],
+});
+```
+
+Enabled dry runs never call the adapter. They return a `dry-run-<n>` message ID and `provider: "dry-run"`. Use `onSend` to inspect normalized messages. Observer failures are ignored so preview logging cannot change delivery behavior.
+
+For automated tests, prefer `@postbote/testing`; dry-run is intended for a running staging or development application.

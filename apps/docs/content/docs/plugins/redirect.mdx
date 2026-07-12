@@ -1,0 +1,26 @@
+---
+title: Redirect
+description: Send staging email only to safe recipients while keeping its original audience visible.
+---
+
+```bash
+pnpm add @postbote/plugin-redirect
+```
+
+```ts
+import { redirect } from "@postbote/plugin-redirect";
+
+const mailer = createPostbote({
+  adapter,
+  plugins: [
+    redirect({
+      to: "staging-inbox@example.com",
+      subjectPrefix: "[staging] ",
+    }),
+  ],
+});
+```
+
+Redirect replaces `to`, removes `cc` and `bcc`, and by default writes the original recipients to `X-Original-To`, `X-Original-Cc`, and `X-Original-Bcc`. Set `preserveHeaders: false` to omit these headers.
+
+Put redirect outside failover so every provider attempt uses the same safe recipient list. Combine it with dry-run by placing redirect first: `[redirect(...), dryRun(...)]`.
