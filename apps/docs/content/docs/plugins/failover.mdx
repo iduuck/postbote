@@ -3,8 +3,11 @@ title: Failover
 description: Continue with a fallback adapter when a retryable provider failure occurs.
 ---
 
-```ts title="src/lib/mailer.ts"
+```ts tab="Single adapter" title="src/lib/mailer.ts"
+import { createPostbote } from "@postbote/core";
+import { postmark } from "@postbote/adapter-postmark";
 import { failover } from "@postbote/plugin-failover";
+import { resend } from "@postbote/adapter-resend";
 
 const resilience = failover({
   fallbacks: [postmark({ serverToken: process.env.POSTMARK_SERVER_TOKEN! })],
@@ -18,6 +21,31 @@ const mailer = createPostbote({
   plugins: [resilience],
 });
 ```
+
+```ts tab="Multiple adapters" title="src/lib/mailer.ts"
+import { createPostbote } from "@postbote/core";
+import { postmark } from "@postbote/adapter-postmark";
+import { failover } from "@postbote/plugin-failover";
+import { resend } from "@postbote/adapter-resend";
+
+const resilience = failover({
+  fallbacks: ["postmark"],
+  onFailover: ({ from, to, error }) => {
+    logger.warn({ from, to, code: error.code }, "mail provider failed over");
+  },
+});
+
+const mailer = createPostbote({
+  registry: [
+    resend({ apiKey: process.env.RESEND_API_KEY! }),
+    postmark({ serverToken: process.env.POSTMARK_SERVER_TOKEN! }),
+  ],
+  adapter: "resend",
+  plugins: [resilience],
+});
+```
+
+The single-adapter pattern accepts fallback instances. The multiple-adapter pattern registers every adapter once and accepts only registered names for `adapter` and string fallback keys. Literal names are type-checked, and duplicate registry names are rejected.
 
 The primary adapter is always attempted first, followed by `fallbacks` in order. By default, failover continues only when `error.retryable` is true. Invalid messages, rejected recipients, and authentication failures never trigger a fallback.
 

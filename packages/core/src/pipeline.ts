@@ -9,6 +9,8 @@ export interface SendAttempt {
 export interface SendContext {
   message: EmailMessage;
   adapter: Adapter;
+  /** Named adapters configured on this Postbote instance. */
+  registry?: readonly Adapter[];
   attempts: SendAttempt[];
   signal?: AbortSignal;
   idempotencyKey?: string;

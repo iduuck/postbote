@@ -14,6 +14,7 @@ export {
 } from "./normalize.js";
 export type { Middleware, Next, SendAttempt, SendContext } from "./pipeline.js";
 export type {
+  PluginAdapterKeys,
   PluginInputExt,
   PluginProviderNames,
   PluginSendReturn,
@@ -22,7 +23,10 @@ export type { Postbote } from "./postbote.js";
 export { createPostbote } from "./postbote.js";
 export type {
   Adapter,
+  AdapterFromRegistry,
+  AdapterKey,
   AdapterName,
+  AdapterRegistry,
   AdapterSendOptions,
   Address,
   Attachment,

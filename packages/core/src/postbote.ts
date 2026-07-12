@@ -3,6 +3,7 @@ import { normalizeMessage } from "./normalize.js";
 import type { SendContext } from "./pipeline.js";
 import { compose } from "./pipeline.js";
 import type {
+  PluginAdapterKeys,
   PluginInputExt,
   PluginProviderNames,
   PluginSendReturn,
@@ -14,7 +15,10 @@ import {
 } from "./plugin-types.js";
 import type {
   Adapter,
+  AdapterFromRegistry,
+  AdapterKey,
   AdapterName,
+  AdapterRegistry,
   BatchItemResult,
   BatchResult,
   EmailMessage,
@@ -24,6 +28,28 @@ import type {
   SendOptions,
   SendResult,
 } from "./types.js";
+
+type HasDuplicateAdapterNames<
+  TRegistry extends AdapterRegistry,
+  TSeen extends string = never,
+> = TRegistry extends readonly [
+  infer TAdapter extends Adapter,
+  ...infer TRest extends AdapterRegistry,
+]
+  ? string extends AdapterName<TAdapter>
+    ? false
+    : AdapterName<TAdapter> extends TSeen
+      ? true
+      : HasDuplicateAdapterNames<TRest, TSeen | AdapterName<TAdapter>>
+  : false;
+
+type RegistrySupportsPluginKeys<
+  TRegistry extends AdapterRegistry,
+  Ps extends readonly PostbotePlugin<any, any>[],
+> = PluginAdapterKeys<Ps> extends AdapterKey<TRegistry> ? unknown : never;
+
+type UniqueAdapterNames<TRegistry extends AdapterRegistry> =
+  HasDuplicateAdapterNames<TRegistry> extends true ? never : unknown;
 
 export interface Postbote<
   TExt = {},
@@ -62,12 +88,81 @@ export function createPostbote<
   const Ps extends readonly PostbotePlugin<any, any>[] = [],
 >(config: {
   adapter: TAdapter;
+  registry?: never;
   plugins?: Ps;
 }): Postbote<
   PluginInputExt<Ps>,
   PluginSendReturn<Ps, AdapterName<TAdapter> | PluginProviderNames<Ps>>,
   TAdapter
-> {
+>;
+
+export function createPostbote<
+  const TRegistry extends AdapterRegistry,
+  const TAdapterKey extends AdapterKey<TRegistry>,
+  const Ps extends readonly PostbotePlugin<any, any>[] = [],
+>(
+  config: {
+    registry: TRegistry;
+    adapter: TAdapterKey;
+    plugins?: Ps;
+  } & UniqueAdapterNames<TRegistry> &
+    RegistrySupportsPluginKeys<TRegistry, Ps>,
+): Postbote<
+  PluginInputExt<Ps>,
+  PluginSendReturn<
+    Ps,
+    | AdapterName<AdapterFromRegistry<TRegistry, TAdapterKey>>
+    | PluginProviderNames<Ps>
+  >,
+  AdapterFromRegistry<TRegistry, TAdapterKey>
+>;
+
+export function createPostbote(
+  config:
+    | {
+        adapter: Adapter;
+        registry?: never;
+        plugins?: readonly PostbotePlugin[];
+      }
+    | {
+        registry: AdapterRegistry;
+        adapter: string;
+        plugins?: readonly PostbotePlugin[];
+      },
+): Postbote {
+  return createPostboteInternal(config);
+}
+
+function createPostboteInternal(
+  config:
+    | {
+        adapter: Adapter;
+        registry?: never;
+        plugins?: readonly PostbotePlugin[];
+      }
+    | {
+        registry: AdapterRegistry;
+        adapter: string;
+        plugins?: readonly PostbotePlugin[];
+      },
+): Postbote {
+  const registry = config.registry ?? [config.adapter];
+  const adapter =
+    typeof config.adapter === "string"
+      ? registry.find((candidate) => candidate.name === config.adapter)
+      : config.adapter;
+
+  if (!adapter) {
+    throw new TypeError(`Adapter "${config.adapter}" is not in the registry`);
+  }
+
+  if (
+    new Set(registry.map((candidate) => candidate.name)).size !==
+    registry.length
+  ) {
+    throw new TypeError("Adapter registry names must be unique");
+  }
+
   const plugins = config.plugins ?? [];
   const middlewares = getMiddlewares(plugins);
   const pipeline = compose(middlewares);
@@ -81,7 +176,8 @@ export function createPostbote<
     const message = normalizeMessage(transformed);
     const ctx: SendContext = {
       message,
-      adapter: config.adapter,
+      adapter,
+      registry,
       attempts: [],
       signal: options?.signal,
       idempotencyKey: options?.idempotencyKey,
@@ -90,7 +186,7 @@ export function createPostbote<
   };
 
   return {
-    adapter: config.adapter,
+    adapter,
     async send(
       input: EmailMessageInput,
       options?: SendOptions,
@@ -122,8 +218,8 @@ export function createPostbote<
       );
 
       valid.sort((a, b) => a.index - b.index);
-      if (config.adapter.sendBatch) {
-        const batchResults = await config.adapter.sendBatch(
+      if (adapter.sendBatch) {
+        const batchResults = await adapter.sendBatch(
           valid.map(({ message }) => message),
           options,
         );
@@ -147,7 +243,7 @@ export function createPostbote<
             } catch (err) {
               results[entry.index] = {
                 status: "failed",
-                error: toPostboteError(err, config.adapter.name),
+                error: toPostboteError(err, adapter.name),
               };
             }
           }
@@ -169,9 +265,5 @@ export function createPostbote<
         failedCount: completed.length - sentCount,
       };
     },
-  } as unknown as Postbote<
-    PluginInputExt<Ps>,
-    PluginSendReturn<Ps, AdapterName<TAdapter> | PluginProviderNames<Ps>>,
-    TAdapter
-  >;
+  };
 }

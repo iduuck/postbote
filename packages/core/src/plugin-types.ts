@@ -37,6 +37,18 @@ export type PluginProviderNames<Ps extends readonly any[]> =
       : never
     : never;
 
+/** Adapter registry keys referenced by plugins in a tuple. */
+export type PluginAdapterKeys<Ps extends readonly any[]> =
+  Ps[number] extends infer P
+    ? P extends unknown
+      ? "__adapterKeys" extends keyof P
+        ? P extends { readonly __adapterKeys?: infer TKeys }
+          ? Extract<TKeys, string>
+          : never
+        : never
+      : never
+    : never;
+
 export type PluginSendReturn<
   Ps extends readonly any[],
   TProvider extends string = string,

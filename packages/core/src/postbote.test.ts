@@ -39,6 +39,34 @@ describe("createPostbote", () => {
     expect(result.provider).toBe("resend");
   });
 
+  it("selects the primary adapter from a registry key", async () => {
+    const primary = fakeAdapter("primary");
+    const fallback = fakeAdapter("fallback");
+    const pb = createPostbote({
+      registry: [primary, fallback],
+      adapter: "fallback",
+    });
+
+    const result = await pb.send({
+      from: "f@t.com",
+      to: "t@t.com",
+      subject: "Hello",
+      text: "World",
+    });
+
+    expect(pb.adapter).toBe(fallback);
+    expect(result.provider).toBe("fallback");
+  });
+
+  it("rejects duplicate adapter names in a registry", () => {
+    expect(() =>
+      createPostbote({
+        registry: [fakeAdapter("duplicate"), fakeAdapter("duplicate")],
+        adapter: "duplicate",
+      }),
+    ).toThrow("Adapter registry names must be unique");
+  });
+
   it("normalizes input before passing to adapter", async () => {
     const adapter = fakeAdapter();
     const pb = createPostbote({ adapter });

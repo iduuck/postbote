@@ -78,6 +78,20 @@ export interface BatchResult<TProvider extends string = string> {
 export type AdapterName<TAdapter extends Adapter = Adapter> =
   TAdapter extends Adapter<infer TName> ? TName : string;
 
+/** Ordered collection of named adapters available to a Postbote instance. */
+export type AdapterRegistry = readonly Adapter[];
+
+/** Names available in an adapter registry. */
+export type AdapterKey<TRegistry extends AdapterRegistry> = AdapterName<
+  TRegistry[number]
+>;
+
+/** Adapter registered under a specific name. */
+export type AdapterFromRegistry<
+  TRegistry extends AdapterRegistry,
+  TName extends AdapterKey<TRegistry>,
+> = Extract<TRegistry[number], Adapter<TName>>;
+
 export interface PluginObject<TInputExt = {}, TSendReturn = never> {
   name: string;
   transformInput?: (

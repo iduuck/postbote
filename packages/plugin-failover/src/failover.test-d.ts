@@ -10,6 +10,32 @@ const message = {
 };
 
 describe("failover provider types", () => {
+  it("accepts fallback registry keys and preserves provider names", () => {
+    const primary = createTestAdapter({ name: "resend" });
+    const fallback = createTestAdapter({ name: "postmark" });
+    const postbote = createPostbote({
+      registry: [primary, fallback],
+      adapter: "resend",
+      plugins: [failover({ fallbacks: ["postmark"] })],
+    });
+
+    expectTypeOf<Awaited<ReturnType<typeof postbote.send>>>().toEqualTypeOf<
+      SendResult<"resend" | "postmark">
+    >();
+  });
+
+  it("rejects fallback keys absent from the registry", () => {
+    const primary = createTestAdapter({ name: "resend" });
+    const fallback = createTestAdapter({ name: "postmark" });
+
+    // @ts-expect-error "ses" is not a key in this registry
+    createPostbote({
+      registry: [primary, fallback],
+      adapter: "resend",
+      plugins: [failover({ fallbacks: ["ses"] })],
+    });
+  });
+
   it("preserves the primary adapter provider", () => {
     const postbote = createPostbote({
       adapter: createTestAdapter({ name: "resend" }),

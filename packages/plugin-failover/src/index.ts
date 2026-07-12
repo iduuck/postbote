@@ -8,7 +8,7 @@ import type {
 import { PostboteError, toPostboteError } from "@postbote/core";
 
 export interface FailoverOptions<
-  TFallbacks extends readonly Adapter[] = readonly Adapter[],
+  TFallbacks extends readonly (Adapter | string)[] = readonly Adapter[],
 > {
   fallbacks: TFallbacks;
   shouldFailover?: (error: PostboteError, ctx: SendContext) => boolean;
@@ -63,17 +63,38 @@ function safeCall(
   }
 }
 
-export function failover<const TFallbacks extends readonly Adapter[]>(
+type FallbackName<TFallback> = TFallback extends Adapter
+  ? AdapterName<TFallback>
+  : TFallback extends string
+    ? TFallback
+    : never;
+
+export function failover<
+  const TFallbacks extends readonly (Adapter | string)[],
+>(
   options: FailoverOptions<TFallbacks>,
 ): Middleware & {
-  readonly __providerNames?: AdapterName<TFallbacks[number]>;
+  readonly __providerNames?: FallbackName<TFallbacks[number]>;
+  readonly __adapterKeys?: Extract<TFallbacks[number], string>;
 } {
   const shouldFailover =
     options.shouldFailover ?? ((e: PostboteError) => e.retryable);
 
   return async (ctx, next) => {
     const primary = ctx.adapter;
-    const chain = [primary, ...options.fallbacks];
+    const fallbacks = options.fallbacks.map((fallback) => {
+      if (typeof fallback !== "string") return fallback;
+      const adapter = ctx.registry?.find(
+        (candidate) => candidate.name === fallback,
+      );
+      if (!adapter) {
+        throw new TypeError(
+          `Fallback adapter "${fallback}" is not in the registry`,
+        );
+      }
+      return adapter;
+    });
+    const chain = [primary, ...fallbacks];
     let lastError: PostboteError | undefined;
 
     for (let i = 0; i < chain.length; i++) {

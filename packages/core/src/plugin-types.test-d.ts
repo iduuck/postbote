@@ -36,7 +36,44 @@ type SendInput<P> = Parameters<
 
 const noopMiddleware: Middleware = (_ctx, next) => next();
 
+const primaryAdapter = defineAdapter({
+  name: "primary",
+  send: () => Promise.resolve({ messageId: "1" }),
+});
+const fallbackAdapter = defineAdapter({
+  name: "fallback",
+  send: () => Promise.resolve({ messageId: "2" }),
+});
+
 describe("plugin types", () => {
+  it("preserves the selected adapter type from a registry", () => {
+    const pb = createPostbote({
+      registry: [primaryAdapter, fallbackAdapter],
+      adapter: "primary",
+    });
+
+    expectTypeOf<typeof pb.adapter>().toEqualTypeOf<typeof primaryAdapter>();
+    expectTypeOf<ReturnType<typeof pb.send>>().toEqualTypeOf<
+      Promise<SendResult<"primary">>
+    >();
+  });
+
+  it("rejects primary keys that are absent from the registry", () => {
+    createPostbote({
+      registry: [primaryAdapter, fallbackAdapter],
+      // @ts-expect-error "missing" is not a key in this registry
+      adapter: "missing",
+    });
+  });
+
+  it("rejects duplicate literal registry keys", () => {
+    // @ts-expect-error registry adapter names must be unique
+    createPostbote({
+      registry: [primaryAdapter, primaryAdapter],
+      adapter: "primary",
+    });
+  });
+
   it("without plugins send() accepts EmailMessageInput", () => {
     const pb = createPostbote({ adapter });
     assertType<Promise<SendResult>>(pb.send(base));

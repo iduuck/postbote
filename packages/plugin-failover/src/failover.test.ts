@@ -62,6 +62,27 @@ describe("failover", () => {
     expect(fallback.inbox.count()).toBe(1);
   });
 
+  it("resolves fallback adapters from registry keys", async () => {
+    const primary = createTestAdapter({ name: "primary" });
+    const fallback = createTestAdapter({ name: "fallback" });
+    primary.failAlways(
+      new PostboteError("unavailable", {
+        code: "PROVIDER_UNAVAILABLE",
+        provider: "primary",
+      }),
+    );
+    const pb = createPostbote({
+      registry: [primary, fallback],
+      adapter: "primary",
+      plugins: [failover({ fallbacks: ["fallback"] })],
+    });
+
+    const result = await pb.send(dummyInput);
+
+    expect(result.provider).toBe("fallback");
+    expect(fallback.inbox.count()).toBe(1);
+  });
+
   it("re-throws non-retryable error (AUTH) without failover", async () => {
     const primary = createTestAdapter({ name: "primary" });
     const fallback = createTestAdapter({ name: "fallback" });

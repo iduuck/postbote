@@ -9,10 +9,14 @@ import { postmark } from "@postbote/adapter-postmark";
 import { failover } from "@postbote/plugin-failover";
 
 const postbote = createPostbote({
-  adapter: resend({ apiKey: env.RESEND_KEY }),
+  registry: [
+    resend({ apiKey: env.RESEND_KEY }),
+    postmark({ serverToken: env.POSTMARK_TOKEN }),
+  ],
+  adapter: "resend",
   plugins: [
     failover({
-      fallbacks: [postmark({ serverToken: env.POSTMARK_TOKEN })],
+      fallbacks: ["postmark"],
       onFailover: ({ from, to, error }) =>
         logger.warn(`failover ${from} → ${to}: ${error.code}`),
     }),
@@ -64,7 +68,7 @@ retries the complete chain.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `fallbacks` | `Adapter[]` | - | Fallback adapters in priority order |
+| `fallbacks` | `(Adapter \| string)[]` | - | Fallback adapters or registry keys in priority order |
 | `shouldFailover?` | `(error, ctx) => boolean` | `(e) => e.retryable` | Decides whether an error should try the next adapter |
 | `onFailover?` | `(info) => void` | - | Called before each switch. Throwing callbacks do not interrupt delivery. |
 
