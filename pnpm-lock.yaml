@@ -185,6 +185,25 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
 
+  examples/staging-safety:
+    dependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@postbote/plugin-dry-run':
+        specifier: workspace:^
+        version: link:../../packages/plugin-dry-run
+      '@postbote/plugin-redirect':
+        specifier: workspace:^
+        version: link:../../packages/plugin-redirect
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../../packages/testing
+    devDependencies:
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
+
   packages/adapter-contract:
     devDependencies:
       '@postbote/core':
@@ -371,6 +390,18 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
 
+  packages/plugin-dry-run:
+    devDependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../testing
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
+
   packages/plugin-failover:
     devDependencies:
       '@postbote/core':
@@ -434,6 +465,18 @@ importers:
         specifier: ^3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
 
+  packages/plugin-rate-limit:
+    devDependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../testing
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
+
   packages/plugin-react-email:
     devDependencies:
       '@postbote/core':
@@ -457,6 +500,18 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.2.7(react@19.2.7)
+      vitest:
+        specifier: ^3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
+
+  packages/plugin-redirect:
+    devDependencies:
+      '@postbote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@postbote/testing':
+        specifier: workspace:^
+        version: link:../testing
       vitest:
         specifier: ^3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@26.1.1)(typescript@5.9.3))
